@@ -106,7 +106,7 @@ In TLS 1.3 with or without the use of ECH, middlebox cannot rely on SNI inspecti
 So in order to implement these name based ACLs, there must be a mapping between the names in the ACLs and layer-3 IP addresses.
 The first section of this document details a few strategies that are used.
 
-The second section of this document details how common manufacturer anti-patterns get in the way this mapping.
+The second section of this document details how common manufacturer anti-patterns get in the way of this mapping.
 
 The third section of this document details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT), DNS over QUIC (DoQ), and DNS over HTTPS (DoH) cause problems for the strategies employed.   Poor interactions with content-distribution networks is a frequent pathology that can result.
 
@@ -135,14 +135,14 @@ Attempts to map IP address to names in real time fails for a number of reasons:
 
 3. the mapping are often incomplete,
 
-4. even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
+4. Even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
 
 This is not a successful strategy, its use is NOT RECOMMENDED for the reasons explained below.
 
 ### Too slow
 
-Mapping of IP address to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
-For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100ms per round trip, this easily ads up to significant time before the packet that caused the lookup can be released.
+Mapping of IP addresses to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
+For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100 ms per round trip, this easily adds up to significant time before the packet that caused the lookup can be released.
 
 While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.  The ACL results can be cached  for a period of time given by the TTL of the DNS results, but the lookup must be performed again in a number of hours to days.
 
@@ -154,7 +154,7 @@ By doing the DNS lookups when the traffic occurs, then a passive attacker can se
 
 A service provider that fails to include an A or AAAA record as part of their forward name publication will find that the new server is simply not used.
 The operational feedback for that mistake is immediate.
-The same is not true for reverse names: they can often be incomplete or incorrect for months or even years without visible affect on operations.
+The same is not true for reverse names: they can often be incomplete or incorrect for months or even years without visible effect on operations.
 
 Service providers often find it difficult to update reverse maps in a timely fashion, assuming that they can do it at all.
 Many cloud based solutions dynamically assign IP addresses to services, often as the service grows and shrinks, reassigning those IP addresses to other services quickly.
@@ -164,11 +164,11 @@ In some cases there are multiple layers of CNAME between the original name and t
 This is often due to a layer of load balancing in DNS, followed by a layer of load balancer at the HTTP level.
 
 The reverse name for the IP address of the load balancer usually does not change.
-If hundreds of web services are funnelled through the load balancer, it would require hundreds of PTR records to be deployed.
+If hundreds of web services are funneled through the load balancer, it would require hundreds of PTR records to be deployed.
 This would easily exceed the UDP/DNS and EDNS0 limits, and require all queries to use TCP, which would further slow down loading of the records.
 
-The enumeration of all services/sites that have been at that load balancer might also consistitute a security concern.
-To liimt churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible names for each reverse name, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
+The enumeration of all services/sites that have been at that load balancer might also constitute a security concern.
+To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible names for each reverse name, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
 
 ### Names can have wildcards
 
@@ -180,12 +180,12 @@ github would be unable to provision all infinity of possible names into the PTR 
 
 ## A successful strategy
 
-The simplest successful strategy for translating names is for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the physical ACLs.
+The simplest successful strategy for translating names for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the physical ACLs.
 
 There are still a number of failures possible.
 
-The most important one is in the mapping of the names to IP addresses may be non-deterministic.
-{{RFC1794}} describes the very common mechanism that returns DNS A (or reasonably AAAA) records in a permutted order.
+The most important one is that the mapping of the names to IP addresses may be non-deterministic.
+{{RFC1794}} describes the very common mechanism that returns DNS A (or reasonably AAAA) records in a permuted order.
 This is known as Round Robin DNS, and it has been used for many decades.
 The device is intended to use the first IP address that is returned, and each query returns addresses in a different ordering, splitting the load among many servers.
 
@@ -194,7 +194,7 @@ The MUD controller and the device get a matching set, and the ACLs that are setu
 
 There are a number of circumstances in which the list is not exhaustive.
 The simplest is when the round robin does not return all addresses.
-This is routinely done by geographical DNS load balancing system.
+This is routinely done by geographical DNS load balancing systems.
 It can also happen if there are more addresses than will conveniently fit into a DNS reply.
 The reply will be marked as truncated.
 (If DNSSEC resolution will be done, then the entire RR must be retrieved over TCP (or using a larger EDNS(0) size) before being validated)
@@ -202,9 +202,9 @@ The reply will be marked as truncated.
 However, in a geographical DNS load balancing system, different answers are given based upon the locality of the system asking.
 There may also be further layers of round-robin indirection.
 
-Aside from the list of records being incomplete, the list may have changed between the time that the MUD controller did the lookup and the time that the IoT device does the lookup, and this change can result in a failure for the ACL to match.
+Aside from the list of records being incomplete, the list may have changed between the time that the MUD controller did the lookup and the time that the IoT device did the lookup, and this change can result in a failure for the ACL to match.
 
-In order to compensate for this, the MUD controller SHOULD regularly perform DNS lookups in order to get never have stale data.
+In order to compensate for this, the MUD controller SHOULD regularly perform DNS lookups in order to never have stale data.
 These lookups must be rate limited to avoid excessive load on the DNS servers,
 and it may be necessary to avoid local recursive resolvers.
 The MUD controller SHOULD incorporate its own recursive caching DNS server.
@@ -213,19 +213,19 @@ Properly designed recursive servers should cache data for many minutes to days, 
 A MUD controller that is aware of which recursive DNS server the IoT device will use can instead query that server on a periodic basis.
 Doing so provides three advantages:
 
-1. any geographic load balancing will base the decision on the geolocation of the recursive DNS server, and the recursive name server will provide the same answer to the MUD controller as to the IoT device.
+1. Any geographic load balancing will base the decision on the geolocation of the recursive DNS server, and the recursive name server will provide the same answer to the MUD controller as to the IoT device.
 
-2. the resulting name to IP address mapping in the recursive name server will be cached, and will remain the same for the entire advertised Time-To-Live reported in the DNS query return.
+2. The resulting name to IP address mapping in the recursive name server will be cached, and will remain the same for the entire advertised Time-To-Live reported in the DNS query return.
    This also allows the MUD controller to avoid doing unnecessary queries.
 
 3. if any addresses have been omitted in a round-robin DNS process, the cache will have the set of addresses that were returned.
 
-The solution of using the same caching recursive resolver as the target device is very simple when the MUD controllers is located in a residential CPE device.
+The solution of using the same caching recursive resolver as the target device is very simple when the MUD controller is located in a residential CPE device.
 The device is usually also the policy enforcement point for the ACLs, and a caching resolver is  typically located on the same device.
 In addition to convenience, there is a shared fate advantage: as all three components are running on the same device, if the device is rebooted, clearing the cache, then all three components will  get restarted when the device is restarted.
 
-Where the solution is more complex is when the MUD controller is located elsewhere in an Enteprise, or remotely in a cloud such as when a Software Defines Network (SDN) is used to manage the ACLs.
-The DNS servers for a particular device may not be known to the MUD controller, nor the MUD controller be even permitted to make recusive queries to that server if it is known.
+Where the solution is more complex is when the MUD controller is located elsewhere in an Enterprise, or remotely in a cloud such as when a Software Defined Network (SDN) is used to manage the ACLs.
+The DNS servers for a particular device may not be known to the MUD controller, nor the MUD controller be even permitted to make recursive queries to that server if it is known.
 In this case, additional installation specific mechanisms are probably needed to get the right view of the DNS.
 
 # DNS and IP Anti-Patterns for IoT device Manufacturers
@@ -241,14 +241,14 @@ A common pattern for a number of devices is to look for firmware updates in a tw
 An initial query is made (often over HTTPS, sometimes with a POST, but the method is immaterial) to a vendor system that knows whether or not an update is required.
 
 The current firmware model of the device is sometimes provided and then the authoritative server provides a determination if a new version is required, and if so, what version.
-In simpler cases, an HTTPS end point is queried which provides the name and URL of the most recent firmware.
+In simpler cases, an HTTPS endpoint is queried which provides the name and URL of the most recent firmware.
 
 The authoritative upgrade server then responds with a URL of a firmware blob that the device should download and install.
 Best practice is that firmware is either signed internally ({{-SUITARCH}}) so that it can be verified, or a hash of the blob is provided.
 
-An authoritative server might be tempted to provided an IP address literal inside the protocol: there are two arguments (anti-patterns) for doing this.
+An authoritative server might be tempted to provide an IP address literal inside the protocol: there are two arguments (anti-patterns) for doing this.
 
-The first is that it eliminates problems to firmware updates that might be caused by lack of DNS, or incompatibilities with DNS.
+The first is that it eliminates problems with firmware updates that might be caused by lack of DNS, or incompatibilities with DNS.
 For instance a bug that causes interoperability issues with some recursive servers would become unpatchable for devices that were forced to use that recursive resolver type.
 
 The second reason to avoid a DNS in the URL is when an inhouse content-distribution system is involved that involves on-demand instances being added (or removed) from a cloud computing architecture.
@@ -266,7 +266,7 @@ A third problem involves the use of HTTPS.
 IP address literals do not provide enough context for TLS ServerNameIndicator to be useful {{?RFC6066}}.
 This limits the firmware repository to be a single tenant on that IP address, and for IPv4 (at least), this is no longer a sustainable use of IP addresses.
 
-And with any non-determistic name or address that is returned,
+And with any non-deterministic name or address that is returned,
 the MUD controller is not challenged to validate the transaction, as
 it can not see into the communication.
 
@@ -274,7 +274,7 @@ Finally, third-party content-distribution networks (CDN) tend to use DNS names i
 
 ## Use of non-deterministic DNS names in-protocol
 
-A second pattern is for a control protocol to connect to a known HTTP end point.
+A second pattern is for a control protocol to connect to a known HTTP endpoint.
 This is easily described in MUD.
 Within that control protocol references are made to additional content at other URLs.
 The values of those URLs do not fit any easily described pattern and may point at arbitrary names.
@@ -284,7 +284,7 @@ Those names are often within some third-party Content-Distribution-Network (CDN)
 Such names may be unpredictably chosen by the content provider, and not the content owner, and so impossible to insert into a MUD file.
 
 Even if the content provider chosen names are deterministic they may change at a rate much faster
-than MUD files can be updated.
+then MUD files can be updated.
 
 This in particular may apply to the location where firmware updates may be retrieved.
 
@@ -296,7 +296,7 @@ This seems to be ideal from a MUD point of view: a completely predictable URL.
 The problem is that a compromised device could then connect to the contents of any bucket,
 potentially attacking the data from other customers.
 
-Exactly what the risk is depends upon what the other customers are doing: it could be limited to simply causing a distributed denial of service attack resulting to high costs to those customers, or such an attack could potentially include writing content.
+Exactly what the risk is depends upon what the other customers are doing: it could be limited to simply causing a distributed denial of service attack resulting in high costs to those customers, or such an attack could potentially include writing content.
 
 Amazon has recognized the problems associated with this practice, and aims to change it to a virtual hosting model, as per {{awss3virtualhosting}}.
 
@@ -308,7 +308,7 @@ The MUD ACLs provide only for permitting end points (hostnames and ports), but d
 {{I-D.ietf-dnsop-terminology-ter}} details the terms.
 But, even with traditional DNS over Port-53 (Do53), it is possible to outsource DNS  queries to other public services, such as those operated by Google, CloudFlare, Verisign, etc.
 
-For some users and classes of device, revealing the DNS queries to those outside entities may consititute a privacy concern.
+For some users and classes of device, revealing the DNS queries to those outside entities may constitute a privacy concern.
 For other users the use of an insecure local resolver may constitute a privacy concern.
 
 As described above in {{mapping}} the MUD controller needs to have access to the same resolver(s) as the IoT device.
@@ -349,7 +349,7 @@ A CDN that always returns the same set of A and AAAA records, but permutes them 
 
 ## Do not use geofenced names
 
-Due the problems with different answers from different DNS servers, described above, a strong recommendation is to avoid using geofenced names.
+Due to the problems with different answers from different DNS servers, described above, a strong recommendation is to avoid using geofenced names.
 
 ## Prefer DNS servers learnt from DHCP/Route Advertisements
 
@@ -373,9 +373,9 @@ This should include the port numbers (53, 853 for DoT, 443 for DoH) that will be
 
 # Privacy Considerations
 
-The use of non-local DNS servers exposes the list of names resolved to a third parties, including passive eavesdroppers.
+The use of non-local DNS servers exposes the list of names resolved to a third party, including passive eavesdroppers.
 
-The use of DoT and DoH eliminates the threat from passive eavesdropped, but still exposes the list to the operator of the DoT or DoH server.
+The use of DoT and DoH eliminates the threat from passive eavesdropping, but still exposes the list to the operator of the DoT or DoH server.
 There are additional methods, such as described by {{?RFC9230}}.
 
 The use of unencrypted (Do53) requests to a local DNS server exposes the list to any internal passive eavesdroppers, and for some situations that may be significant, particularly if unencrypted WiFi is used.
@@ -394,12 +394,12 @@ Other update mechanisms should be investigated, including use of DNSSEC signed T
 This would permit DoT or DoH to convey the update notification in a private fashion.
 This is particularly powerful if a local recursive DoT server is used, which then communicates using DoT over the Internet.
 
-The more complex case of section {{inprotocol}} postulates that the version number needs to be provided to an intelligent agent that can decided the correct route to do upgrades.
+The more complex case of section {{inprotocol}} postulates that the version number needs to be provided to an intelligent agent that can decide the correct route to do upgrades.
 {{-SUITARCH}} provides a wide variety of ways to accomplish the same thing without having to divulge the current version number.
 
 The use of a publically specified firmware update protocol would also enhance privacy of IoT devices.
 In such a system the IoT device would never contact the manufacturer for version information or for firmware itself.
-Instead, details of how to query and where to get the firmware would be provided as a MUD extension, and a Enterprise-wide mechanism would retrieve firmware, and then distribute it internally.
+Instead, details of how to query and where to get the firmware would be provided as a MUD extension, and an Enterprise-wide mechanism would retrieve firmware, and then distribute it internally.
 Aside from the bandwidth savings of downloading the firmware only once, this also makes the number of devices active confidential,  and provides some evidence about which devices have been upgraded and which ones might still be vulnerable.
 (The unpatched devices might be lurking, powered off, lost in a closet)
 
