@@ -279,7 +279,8 @@ This is easily described in MUD.
 Within that control protocol references are made to additional content at other URLs.
 The values of those URLs do not fit any easily described pattern and may point at arbitrary names.
 
-Those names are often within some third-party Content-Distribution-Network (CDN) system, or may be arbitrary names in a cloud-provider storage system (i.e., {{AmazonS3}}, or {{Akamai}}).
+Those names are often within some third-party Content-Distribution-Network (CDN) system, or may be arbitrary names in a cloud-provider storage system (i.e., {{AmazonS3}}, or {{Akamai}}).  
+Some of the name components may be specified by the provider.
 
 Such names may be unpredictably chosen by the content provider, and not the content owner, and so impossible to insert into a MUD file.
 
