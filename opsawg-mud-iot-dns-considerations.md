@@ -279,7 +279,8 @@ This is easily described in MUD.
 Within that control protocol references are made to additional content at other URLs.
 The values of those URLs do not fit any easily described pattern and may point at arbitrary names.
 
-Those names are often within some third-party Content-Distribution-Network (CDN) system, or may be arbitrary names in a cloud-provider storage system such as Amazon S3 (such {{AmazonS3}}, or {{Akamai}}).
+Those names are often within some third-party Content-Distribution-Network (CDN) system, or may be arbitrary names in a cloud-provider storage system (i.e., {{AmazonS3}}, or {{Akamai}}).  
+Some of the name components may be specified by the provider.
 
 Such names may be unpredictably chosen by the content provider, and not the content owner, and so impossible to insert into a MUD file.
 
@@ -287,6 +288,16 @@ Even if the content provider chosen names are deterministic they may change at a
 then MUD files can be updated.
 
 This in particular may apply to the location where firmware updates may be retrieved.
+
+A solution is to use a deterministic DNS name, within the control of the firmware vendor.
+This may be a problem if the content distribution network needs to reorganize which IP address is responsible for which content, or if there is a desire to provide content in geographically relevant ways.
+
+The firmware vendor is therefore likely to be asked to point a CNAME to the CDN network, to a name that might look like "g7.a.example", with the expectation that the CDN vendors DNS will do all the appropriate work to geolocate the transfer.
+This can be fine for a MUD file, as the MUD controller, if located in the same geography as the IoT device, can follow the CNAME, and can collect the set of resulting IP addresses, along with the TTL for each.  The MUD controller can then take charge of refreshing that mapping at intervals driven by the TTL.
+
+In some cases, a complete set of geographically distributed servers is known at ahead of time, and the firmware vendor can list all of those addresses in the name that it lists in the MUD file.
+As long as the active set of addresses used by the CDN is a strict subset of that list, then the geolocated name can be used for the firmware download itself.
+This use of two addresses is ripe for confusion however.
 
 ## Use of a too generic DNS name
 
