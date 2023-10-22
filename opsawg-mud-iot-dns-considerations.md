@@ -266,11 +266,10 @@ A third problem involves the use of HTTPS.
 IP address literals do not provide enough context for TLS ServerNameIndicator to be useful {{?RFC6066}}.
 This limits the firmware repository to be a single tenant on that IP address, and for IPv4 (at least), this is no longer a sustainable use of IP addresses.
 
-And with any non-deterministic name or address that is returned,
-the MUD controller is not challenged to validate the transaction, as
-it can not see into the communication.
-
 Finally, third-party content-distribution networks (CDN) tend to use DNS names in order to isolate the content-owner from changes to the distribution network.
+
+A non-deterministic name or address that is returned within the update protocol, the MUD controller is unable to know what the name is.
+It is therefore unable to make sure that the communication to retrieve the new firmware is permitted by the MUD enforcement point.
 
 ## Use of non-deterministic DNS names in-protocol
 
