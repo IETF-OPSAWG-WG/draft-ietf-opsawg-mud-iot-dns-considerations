@@ -32,6 +32,12 @@ normative:
   RFC7858:
   RFC8520:
   RFC1794:  # DNS round robin support
+  I-D.ietf-dnsop-rfc8499bis:
+  RFC9019: SUITARCH
+  RFC7858:
+  RFC8094:
+
+informative:
   AmazonS3:
     title: "Amazon S3"
     target: "https://en.wikipedia.org/wiki/Amazon_S3"
@@ -40,15 +46,6 @@ normative:
     title: "Akamai"
     target: "https://en.wikipedia.org/wiki/Akamai_Technologies"
     date: 2019
-  RFC8499:
-  I-D.ietf-dnsop-terminology-ter:
-  RFC9019: SUITARCH
-  RFC7858:
-  RFC8094:
-
-informative:
-  I-D.peterson-doh-dhcp:
-  I-D.reddy-add-iot-byod-bootstrap:
   mudmaker:
     title: "Mud Maker"
     target: "https://mudmaker.org"
@@ -323,7 +320,7 @@ The MUD ACLs provide only for permitting end points (hostnames and ports), but d
 # DNS privacy and outsourcing versus MUD controllers
 
 {{RFC7858}} and {{RFC8094}} provide for DNS over TLS (DoT) and DNS over HTTPS (DoH).
-{{I-D.ietf-dnsop-terminology-ter}} details the terms.
+{{I-D.ietf-dnsop-rfc8499bis}} details the terms.
 But, even with traditional DNS over Port-53 (Do53), it is possible to outsource DNS  queries to other public services, such as those operated by Google, CloudFlare, Verisign, etc.
 
 For some users and classes of device, revealing the DNS queries to those outside entities may constitute a privacy concern.
@@ -353,7 +350,7 @@ Names should always be used.
 ## Use primary DNS names controlled by the manufacturer
 
 The second recommendation is to allocate and use names within zones controlled by the manufacturer.
-These names can be populated with an alias (see {{RFC8499}} section 2) that points to the production system.
+These names can be populated with an alias (see {{I-D.ietf-dnsop-rfc8499bis}} section 2) that points to the production system.
 Ideally, a different name is used for each logical function, allowing for different rules in the MUD file to be enabled and disabled.
 
 While it used to be costly to have a large number of aliases in a web server certificate, this is no longer the case.
@@ -371,13 +368,11 @@ Due to the problems with different answers from different DNS servers, described
 
 ## Prefer DNS servers learnt from DHCP/Route Advertisements
 
-IoT Devices SHOULD prefer doing DNS to the network provided DNS servers.
-Whether this is restricted to Classic DNS (Do53) or also includes using DoT/DoH is a local decision, but a locally provided DoT/DoH server SHOULD be used, as recommended by {{?I-D.reddy-add-iot-byod-bootstrap}}.
+IoT Devices SHOULD prefer doing DNS to with the DHCP provided DNS servers.
 
-The ADD WG is currently only focusing on insecure discovery mechanisms
-like DHCP/RA {{?I-D.ietf-add-dnr}} and DNS based discovery mechanisms ({{?I-D.ietf-add-ddr}}).
+The ADD WG has written {{?I-D.ietf-add-dnr}} and {{?I-D.ietf-add-ddr}} to provided.
 
-Use of public QuadX resolver instead of the provided DNS resolver, whether Do53, DoT or DoH is discouraged.
+Use of public resolvers instead of the provided DNS resolver, whether Do53, DoQ, DoT or DoH is discouraged.
 Should the network provide such a resolver for use, then there is no reason not to use it, as the network operator has clearly thought about this.
 
 Some manufacturers would like to have a fallback to using a public resolver to mitigate against local misconfiguration.
@@ -387,7 +382,7 @@ It is recommended that use of non-local resolvers is only done when the locally 
 The use of the operator provided resolvers SHOULD be retried on a periodic basis, and once they answer, there SHOULD be no further attempts to contact public resolvers.
 
 Finally, the list of public resolvers that might be contacted MUST be listed in the MUD file as destinations that are to be permitted!
-This should include the port numbers (53, 853 for DoT, 443 for DoH) that will be used as well.
+This should include the port numbers (i.e., 53, 853 for DoT, 443 for DoH) that will be used as well.
 
 # Privacy Considerations
 
@@ -397,7 +392,7 @@ The use of DoT and DoH eliminates the threat from passive eavesdropping, but sti
 There are additional methods, such as described by {{?RFC9230}}.
 
 The use of unencrypted (Do53) requests to a local DNS server exposes the list to any internal passive eavesdroppers, and for some situations that may be significant, particularly if unencrypted WiFi is used.
-Use of Encrypted DNS connection to a local DNS recursive resolver is a preferred choice, assuming that the trust anchor for the local DNS server can be obtained, such as via {{I-D.reddy-add-iot-byod-bootstrap}}.
+Use of Encrypted DNS connection to a local DNS recursive resolver is a preferred choice.
 
 IoT devices that reach out to the manufacturer at regular intervals to check for firmware updates are informing passive eavesdroppers of the existence of a specific manufacturer's device being present at the origin location.
 
