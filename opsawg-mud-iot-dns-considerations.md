@@ -170,13 +170,17 @@ This would easily exceed the UDP/DNS and EDNS0 limits, and require all queries t
 The enumeration of all services/sites that have been at that load balancer might also constitute a security concern.
 To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible names for each reverse name, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
 
-### Names can have wildcards
+### Forward names can have wildcards
 
-In some large hosting providers content is hosted under some URL that includes a wildcard.
+In some large hosting providers content is hosted through a domain name that is published as a DNS wildcard (and uses a wildcard certificate).
 For instance, github.io, which is used for hosted content, including the Editors' copy of internet drafts stored on github, does not actually publish any names.
-Instead a wildcard exists to answer.
+Instead a wildcard exists to answer all potential names: requests are routed appropriate once they are received.
 
-github would be unable to provision all infinity of possible names into the PTR records.
+This kind of system works well for self-managed hosted content.
+However, while it is possible to insert up to a few dozen PTR records, many thousand entries are not possible, nor is it possible to deal with the unlimited (infinite) number of possibilities that a wildcard supports.
+
+It would be therefore impossible for the PTR reverse lookup to ever work with these wildcard names.
+
 
 ## A successful strategy
 
