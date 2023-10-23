@@ -101,7 +101,11 @@ This could in theory be done for TLS 1.2 connections.
 The MUD policy enforcement point could observe the Server Name  Identifier (SNI) {{?RFC6066}}.
 Some Enterprises do this already.
 But, as this involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic, it requires significant effort.
-In TLS 1.3 with or without the use of ECH, middlebox cannot rely on SNI inspection because a malware could lie about the SNI and middlebox without acting as a TLS proxy does not have visibility into the server certificate.
+
+In TLS 1.3, with or without the use of ECH, middleboxes cannot rely on
+SNI inspection because malware could lie about the SNI.
+In addition, middleboxes do not have visibility into the server certificate unless
+they are acting as TLS proxies.
 
 So in order to implement these name based ACLs, there must be a mapping between the names in the ACLs and layer-3 IP addresses.
 The first section of this document details a few strategies that are used.
