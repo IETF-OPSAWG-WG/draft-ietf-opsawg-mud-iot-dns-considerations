@@ -145,7 +145,8 @@ This is not a successful strategy, its use is NOT RECOMMENDED for the reasons ex
 Mapping of IP addresses to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
 For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100 ms per round trip, this easily adds up to significant time before the packet that caused the lookup can be released.
 
-While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.  The ACL results can be cached  for a period of time given by the TTL of the DNS results, but the lookup must be performed again in a number of hours to days.
+While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.
+The ACL results can be cached  for a period of time given by the TTL of the DNS results.
 
 ### Reveals patterns of usage
 
