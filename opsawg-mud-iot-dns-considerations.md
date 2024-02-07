@@ -85,16 +85,16 @@ This document makes recommendations on when and how to use DNS names in MUD file
 {{RFC8520}} provides a standardized way to describe how a specific purpose device makes use of Internet resources.
 Access Control Lists (ACLs) can be defined in an RFC8520 Manufacturer Usage Description (MUD) file that permit a device to access Internet resources by DNS name.
 
-Use of a DNS name rather than IP address in the ACL has many advantages: not only does the layer of indirection permit the mapping of name to IP address to be changed over time, it also generalizes automatically to IPv4 and IPv6 addresses, as well as permitting loading balancing of traffic by many different common ways, including multi-CDN deployments wherein load balancing can account for geography and load.
+Use of a DNS name rather than IP address in the ACL has many advantages: not only does the layer of indirection permit the mapping of name to IP address to be changed over time, it also generalizes automatically to IPv4 and IPv6 addresses, as well as permitting a variety of load balancing strategies, including multi-CDN deployments wherein load balancing can account for geography and load.
 
 At the MUD policy enforcement point -- the firewall -- there is a problem.
-The firewall has only access to the layer-3 headers of the packet.
+The firewall has access only to the layer-3 headers of the packet.
 This includes the source and destination IP address, and if not encrypted by IPsec, the destination UDP or TCP port number present in the transport header.
 The DNS name is not present!
 
 
 It has been suggested that one answer to this problem is to provide a forced intermediate for the TLS connections.
-This could in theory be done for TLS 1.2 connections.
+In theory, this could be done for TLS 1.2 connections.
 The MUD policy enforcement point could observe the Server Name  Identifier (SNI) {{?RFC6066}}.
 Some Enterprises do this already.
 But, as this involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic, it requires significant effort.
@@ -109,9 +109,9 @@ The first section of this document details a few strategies that are used.
 
 The second section of this document details how common manufacturer anti-patterns get in the way of this mapping.
 
-The third section of this document details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT), DNS over QUIC (DoQ), and DNS over HTTPS (DoH) cause problems for the strategies employed.   Poor interactions with content-distribution networks is a frequent pathology that can result.
+The third section of this document details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT), DNS over QUIC (DoQ), and DNS over HTTPS (DoH) cause problems for the strategies employed.
 
-The fourth section of this document makes a series of recommendations ("best current practices") for manufacturers on how to use DNS and IP addresses with specific purpose IoT devices.
+The fourth section of this document makes a series of recommendations ("best current practices") for manufacturers on how to use DNS and IP addresses with MUD supporting IoT devices.
 
 The Privacy Considerations section concerns itself with issues that DNS-over-TLS and DNS-over-HTTPS are frequently used to deal with.
 How these concerns apply to IoT devices located within a residence or enterprise is a key concern.
@@ -124,7 +124,7 @@ The Security Considerations section covers some of the negative outcomes should 
 
 # Strategies to map names {#mapping}
 
-The most naive method is to try to map IP addresses to names using the in-addr.arpa (IPv4), and ipv6.arpa (IPv6) mappings.
+The most naive method is to try to map IP addresses to names using the in-addr.arpa (IPv4), and ipv6.arpa (IPv6) mappings at the time the packet is seen.
 
 ## Failing strategy
 
@@ -146,7 +146,8 @@ Mapping of IP addresses to names requires a DNS lookup in the in-addr.arpa or ip
 For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100 ms per round trip, this easily adds up to significant time before the packet that caused the lookup can be released.
 
 While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.
-The ACL results can be cached  for a period of time given by the TTL of the DNS results.
+The ACL results can be cached for a period of time given by the TTL of the DNS results, but the DNS lookup must be repeated, e.g, in a few hours or days,when the cached IP address to name binding expires.
+
 
 ### Reveals patterns of usage
 
