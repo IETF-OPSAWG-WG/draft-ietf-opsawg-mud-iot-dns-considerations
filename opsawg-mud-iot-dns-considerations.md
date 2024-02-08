@@ -176,7 +176,7 @@ To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operator
 
 In some large hosting providers content is hosted through a domain name that is published as a DNS wildcard (and uses a wildcard certificate).
 For instance, github.io, which is used for hosted content, including the Editors' copy of internet drafts stored on github, does not actually publish any names.
-Instead a wildcard exists to answer all potential names: requests are routed appropriate once they are received.
+Instead, a wildcard exists to answer all potential names: requests are routed appropriate once they are received.
 
 This kind of system works well for self-managed hosted content.
 However, while it is possible to insert up to a few dozen PTR records, many thousand entries are not possible, nor is it possible to deal with the unlimited (infinite) number of possibilities that a wildcard supports.
@@ -196,10 +196,10 @@ This is known as Round Robin DNS, and it has been used for many decades.
 The device is intended to use the first IP address that is returned, and each query returns addresses in a different ordering, splitting the load among many servers.
 
 This situation does not result in failures as long as all possible A/AAAA records are returned.
-The MUD controller and the device get a matching set, and the ACLs that are setup cover all possibilities.
+The MUD controller and the device get a matching set, and the ACLs that are set up cover all possibilities.
 
 There are a number of circumstances in which the list is not exhaustive.
-The simplest is when the round robin does not return all addresses.
+The simplest is when the round-robin does not return all addresses.
 This is routinely done by geographical DNS load balancing systems.
 It can also happen if there are more addresses than will conveniently fit into a DNS reply.
 The reply will be marked as truncated.
@@ -224,7 +224,7 @@ Doing so provides three advantages:
 2. The resulting name to IP address mapping in the recursive name server will be cached, and will remain the same for the entire advertised Time-To-Live reported in the DNS query return.
    This also allows the MUD controller to avoid doing unnecessary queries.
 
-3. if any addresses have been omitted in a round-robin DNS process, the cache will have the set of addresses that were returned.
+3. if any addresses have been omitted in a round-robin DNS process, the cache will have the same set of addresses that were returned.
 
 The solution of using the same caching recursive resolver as the target device is very simple when the MUD controller is located in a residential CPE device.
 The device is usually also the policy enforcement point for the ACLs, and a caching resolver is  typically located on the same device.
@@ -241,12 +241,12 @@ The latter are called anti-patterns, as per {{antipatterns}}.
 
 This section describes a number of things which IoT manufacturers have been observed to do in the field, each of which presents difficulties for MUD enforcement points.
 
-## Use of IP address literals in-protocol {#inprotocol}
+## Use of IP address literals inprotocol {#inprotocol}
 
-A common pattern for a number of devices is to look for firmware updates in a two step process.
-An initial query is made (often over HTTPS, sometimes with a POST, but the method is immaterial) to a vendor system that knows whether or not an update is required.
+A common pattern for a number of devices is to look for firmware updates in a two-step process.
+An initial query is made (often over HTTPS, sometimes with a POST, but the method is immaterial) to a vendor system that knows whether an update is required.
 
-The current firmware model of the device is sometimes provided and then the authoritative server provides a determination if a new version is required, and if so, what version.
+The current firmware model of the device is sometimes provided and then the authoritative server provides a determination if a new version is required and, if so, what version.
 In simpler cases, an HTTPS endpoint is queried which provides the name and URL of the most recent firmware.
 
 The authoritative upgrade server then responds with a URL of a firmware blob that the device should download and install.
@@ -257,7 +257,7 @@ An authoritative server might be tempted to provide an IP address literal inside
 The first is that it eliminates problems with firmware updates that might be caused by lack of DNS, or incompatibilities with DNS.
 For instance a bug that causes interoperability issues with some recursive servers would become unpatchable for devices that were forced to use that recursive resolver type.
 
-The second reason to avoid a IP address literal in the URL is when an in-house content-distribution system is involved that involves on-demand instances being added (or removed) from a cloud computing architecture.
+The second reason to avoid a IP address literal in the URL is when an inhouse content-distribution system is involved that involves on-demand instances being added (or removed) from a cloud computing architecture.
 
 But, there are more problems with use of IP address literals for the location of the firmware.
 
@@ -290,7 +290,7 @@ Some of the name components may be specified by the provider.
 Such names may be unpredictably chosen by the content provider, and not the content owner, and so impossible to insert into a MUD file.
 
 Even if the content provider chosen names are deterministic they may change at a rate much faster
-then MUD files can be updated.
+than MUD files can be updated.
 
 This in particular may apply to the location where firmware updates may be retrieved.
 
@@ -301,9 +301,9 @@ The firmware vendor is therefore likely to be asked to point a CNAME to the CDN 
 This can be fine for a MUD file, as the MUD controller, if located in the same geography as the IoT device, can follow the CNAME, and can collect the set of resulting IP addresses, along with the TTL for each.
 The MUD controller can then take charge of refreshing that mapping at intervals driven by the TTL.
 
-In some cases, a complete set of geographically distributed servers is known at ahead of time, and the firmware vendor can list all of those addresses DNS for the the name that it lists in the MUD file.
+In some cases, a complete set of geographically distributed servers is known ahead of time, and the firmware vendor can list all those addresses DNS for the the name that it lists in the MUD file.
 As long as the active set of addresses used by the CDN is a strict subset of that list, then the geolocated name can be used for the firmware download itself.
-This use of two addresses is ripe for confusion however.
+This use of two addresses is ripe for confusion, however.
 
 ## Use of a too generic DNS name
 
@@ -313,7 +313,7 @@ This seems to be ideal from a MUD point of view: a completely predictable URL.
 The problem is that a compromised device could then connect to the contents of any bucket,
 potentially attacking the data from other customers.
 
-Exactly what the risk is depends upon what the other customers are doing: it could be limited to simply causing a distributed denial of service attack resulting in high costs to those customers, or such an attack could potentially include writing content.
+Exactly what the risk is depends upon what the other customers are doing: it could be limited to simply causing a distributed denial-of-service attack resulting in high costs to those customers, or such an attack could potentially include writing content.
 
 Amazon has recognized the problems associated with this practice, and aims to change it to a virtual hosting model, as per {{awss3virtualhosting}}.
 
@@ -335,7 +335,7 @@ As described above in {{mapping}} the MUD controller needs to have access to the
 Inclusion of a MUD file with IoT devices is operationally quite simple.
 It requires only a few small changes to the DHCP client code to express the
 MUD URL.
-It can even be done without code changes via the use of a QR code affixed to the packaging (see {{?RFC9238}}.
+It can even be done without code changes via the use of a QR code affixed to the packaging (see {{?RFC9238}})
 
 The difficult part is determining what to put into the MUD file itself.
 There are currently tools that help with the definition and analysis of MUD files, see {{mudmaker}}.
@@ -393,7 +393,7 @@ The use of non-local DNS servers exposes the list of names resolved to a third p
 The use of DoT and DoH eliminates the threat from passive eavesdropping, but still exposes the list to the operator of the DoT or DoH server.
 There are additional methods to help preserve privacy, such as described by {{?RFC9230}}.
 
-The use of unencrypted (Do53) requests to a local DNS server exposes the list to any internal passive eavesdroppers, and for some situations that may be significant, particularly if unencrypted WiFi is used.
+The use of unencrypted (Do53) requests to a local DNS server exposes the list to any internal passive eavesdroppers, and for some situations that may be significant, particularly if unencrypted Wi-Fi is used.
 Use of Encrypted DNS connection to a local DNS recursive resolver is the preferred choice.
 
 IoT devices that reach out to the manufacturer at regular intervals to check for firmware updates are informing passive eavesdroppers of the existence of a specific manufacturer's device being present at the origin location.
@@ -412,8 +412,8 @@ This is particularly powerful if a local recursive DoT server is used, which the
 The more complex case of section {{inprotocol}} postulates that the version number needs to be provided to an intelligent agent that can decide the correct route to do upgrades.
 {{-SUITARCH}} provides a wide variety of ways to accomplish the same thing without having to divulge the current version number.
 
-The use of a publically specified firmware update protocol would also enhance privacy of IoT devices.
-In such a system the IoT device would never contact the manufacturer for version information or for firmware itself.
+The use of a publicly specified firmware update protocol would also enhance privacy of IoT devices.
+In such a system, the IoT device would never contact the manufacturer for version information or for firmware itself.
 Instead, details of how to query and where to get the firmware would be provided as a MUD extension, and an Enterprise-wide mechanism would retrieve firmware, and then distribute it internally.
 Aside from the bandwidth savings of downloading the firmware only once, this also makes the number of devices active confidential,  and provides some evidence about which devices have been upgraded and which ones might still be vulnerable.
 (The unpatched devices might be lurking, powered off, lost in a closet)
