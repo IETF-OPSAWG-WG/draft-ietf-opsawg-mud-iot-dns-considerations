@@ -148,7 +148,6 @@ For a cold DNS cache, this will typically require 2 to 3 NS record lookups to lo
 While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.
 The ACL results can be cached for a period of time given by the TTL of the DNS results, but the DNS lookup must be repeated, e.g, in a few hours or days,when the cached IP address to name binding expires.
 
-
 ### Reveals patterns of usage
 
 By doing the DNS lookups when the traffic occurs, then a passive attacker can see when the device is active, and may be able to derive usage patterns.  They could determine when a home was occupied or not.  This does not require access to all on-path data, just to the DNS requests to the bottom level of the DNS tree.
@@ -164,7 +163,7 @@ Many cloud based solutions dynamically assign IP addresses to services, often as
 The use of HTTP 1.1 Virtual Hosting may allow addresses and entire front-end systems to be re-used dynamically without even reassigning the IP addresses.
 
 In some cases there are multiple layers of CNAME between the original name and the target service name.
-This is often due to a layer of load balancing in DNS, followed by a layer of load balancer at the HTTP level.
+This is often due to a load balancing layer in the DNS, followed by a load balancing layer at the HTTP level.
 
 The reverse name for the IP address of the load balancer usually does not change.
 If hundreds of web services are funneled through the load balancer, it would require hundreds of PTR records to be deployed.
@@ -215,7 +214,7 @@ In order to compensate for this, the MUD controller SHOULD regularly perform DNS
 These lookups must be rate limited to avoid excessive load on the DNS servers,
 and it may be necessary to avoid local recursive resolvers.
 The MUD controller SHOULD incorporate its own recursive caching DNS server.
-Properly designed recursive servers should cache data for many minutes to days, while the underlying DNS data can change at a higher frequency, providing different answers to different queries!
+Properly designed recursive servers should cache data for at least some number of minutes, up to some number of days, while the underlying DNS data can change at a higher frequency, providing different answers to different queries!
 
 A MUD controller that is aware of which recursive DNS server the IoT device will use can instead query that server on a periodic basis.
 Doing so provides three advantages:
@@ -258,7 +257,7 @@ An authoritative server might be tempted to provide an IP address literal inside
 The first is that it eliminates problems with firmware updates that might be caused by lack of DNS, or incompatibilities with DNS.
 For instance a bug that causes interoperability issues with some recursive servers would become unpatchable for devices that were forced to use that recursive resolver type.
 
-The second reason to avoid a DNS in the URL is when an inhouse content-distribution system is involved that involves on-demand instances being added (or removed) from a cloud computing architecture.
+The second reason to avoid a IP address literal in the URL is when an in-house content-distribution system is involved that involves on-demand instances being added (or removed) from a cloud computing architecture.
 
 But, there are more problems with use of IP address literals for the location of the firmware.
 
@@ -273,7 +272,7 @@ A third problem involves the use of HTTPS.
 IP address literals do not provide enough context for TLS ServerNameIndicator to be useful {{?RFC6066}}.
 This limits the firmware repository to be a single tenant on that IP address, and for IPv4 (at least), this is no longer a sustainable use of IP addresses.
 
-Finally, third-party content-distribution networks (CDN) tend to use DNS names in order to isolate the content-owner from changes to the distribution network.
+Finally, it is common in some content-distribution networks (CDN) to use multiple layers of DNS CNAMEs in order to isolate the content-owner's naming system from changes in how the distribution network is organized.
 
 A non-deterministic name or address that is returned within the update protocol, the MUD controller is unable to know what the name is.
 It is therefore unable to make sure that the communication to retrieve the new firmware is permitted by the MUD enforcement point.
@@ -299,15 +298,16 @@ A solution is to use a deterministic DNS name, within the control of the firmwar
 This may be a problem if the content distribution network needs to reorganize which IP address is responsible for which content, or if there is a desire to provide content in geographically relevant ways.
 
 The firmware vendor is therefore likely to be asked to point a CNAME to the CDN network, to a name that might look like "g7.a.example", with the expectation that the CDN vendors DNS will do all the appropriate work to geolocate the transfer.
-This can be fine for a MUD file, as the MUD controller, if located in the same geography as the IoT device, can follow the CNAME, and can collect the set of resulting IP addresses, along with the TTL for each.  The MUD controller can then take charge of refreshing that mapping at intervals driven by the TTL.
+This can be fine for a MUD file, as the MUD controller, if located in the same geography as the IoT device, can follow the CNAME, and can collect the set of resulting IP addresses, along with the TTL for each.
+The MUD controller can then take charge of refreshing that mapping at intervals driven by the TTL.
 
-In some cases, a complete set of geographically distributed servers is known at ahead of time, and the firmware vendor can list all of those addresses in the name that it lists in the MUD file.
+In some cases, a complete set of geographically distributed servers is known at ahead of time, and the firmware vendor can list all of those addresses DNS for the the name that it lists in the MUD file.
 As long as the active set of addresses used by the CDN is a strict subset of that list, then the geolocated name can be used for the firmware download itself.
 This use of two addresses is ripe for confusion however.
 
 ## Use of a too generic DNS name
 
-Some CDNs make all customer content at a single URL (such as s3.amazonaws.com).
+Some CDNs make all customer content available at a single URL (such as s3.amazonaws.com).
 This seems to be ideal from a MUD point of view: a completely predictable URL.
 
 The problem is that a compromised device could then connect to the contents of any bucket,
@@ -339,7 +339,7 @@ It can even be done without code changes via the use of a QR code affixed to the
 
 The difficult part is determining what to put into the MUD file itself.
 There are currently tools that help with the definition and analysis of MUD files, see {{mudmaker}}.
-The remaining difficulty is now the semantic contents of what is in the MUD file.
+The remaining difficulty is now the actual list of expected connections to put in the MUD file.
 An IoT manufacturer must now spend some time reviewing the network communications by their device.
 
 This document discusses a number of challenges that occur relating to how DNS requests are made and resolved, and the goal of this section is to make recommendations on how to modify IoT systems to work well with MUD.
@@ -372,7 +372,7 @@ Due to the problems with different answers from different DNS servers, described
 
 IoT Devices SHOULD prefer doing DNS to with the DHCP provided DNS servers.
 
-The ADD WG has written {{?I-D.ietf-add-dnr}} and {{?I-D.ietf-add-ddr}} to provided.
+The ADD WG has written {{?I-D.ietf-add-dnr}} and {{?I-D.ietf-add-ddr}} to provide information to end devices on how to find locally provisioned secure/private DNS servers.
 
 Use of public resolvers instead of the provided DNS resolver, whether Do53, DoQ, DoT or DoH is discouraged.
 Should the network provide such a resolver for use, then there is no reason not to use it, as the network operator has clearly thought about this.
@@ -391,10 +391,10 @@ This should include the port numbers (i.e., 53, 853 for DoT, 443 for DoH) that w
 The use of non-local DNS servers exposes the list of names resolved to a third party, including passive eavesdroppers.
 
 The use of DoT and DoH eliminates the threat from passive eavesdropping, but still exposes the list to the operator of the DoT or DoH server.
-There are additional methods, such as described by {{?RFC9230}}.
+There are additional methods to help preserve privacy, such as described by {{?RFC9230}}.
 
 The use of unencrypted (Do53) requests to a local DNS server exposes the list to any internal passive eavesdroppers, and for some situations that may be significant, particularly if unencrypted WiFi is used.
-Use of Encrypted DNS connection to a local DNS recursive resolver is a preferred choice.
+Use of Encrypted DNS connection to a local DNS recursive resolver is the preferred choice.
 
 IoT devices that reach out to the manufacturer at regular intervals to check for firmware updates are informing passive eavesdroppers of the existence of a specific manufacturer's device being present at the origin location.
 
