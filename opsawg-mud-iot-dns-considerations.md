@@ -1,5 +1,5 @@
 ---
-title: Operational Considerations for use of DNS in IoT devices
+title: Operational Considerations for Use of DNS in IoT Devices
 abbrev: mud-iot-dns
 docname: draft-ietf-opsawg-mud-iot-dns-considerations-12
 
@@ -29,7 +29,6 @@ author:
   email: william.panwei@huawei.com
 
 normative:
-  RFC7858:
   RFC8520:
   RFC1794:  # DNS round robin support
   I-D.ietf-dnsop-rfc8499bis:
@@ -72,26 +71,24 @@ venue:
 
 --- abstract
 
-This document details concerns about how Internet of Things devices use IP
+This document details concerns about how Internet of Things (IoT) devices use IP
 addresses and DNS names.
-The issue becomes acute as network operators begin deploying RFC8520 Manufacturer Usage Description (MUD) definitions to control device access.
+These concerns become acute as network operators begin deploying RFC 8520 Manufacturer Usage Description (MUD) definitions to control device access.
 
-This document makes recommendations on when and how to use DNS names in MUD files.
+Alos, this document makes recommendations on when and how to use DNS names in MUD files.
 
 --- middle
 
 # Introduction
 
 {{RFC8520}} provides a standardized way to describe how a specific purpose device makes use of Internet resources.
-Access Control Lists (ACLs) can be defined in an RFC8520 Manufacturer Usage Description (MUD) file that permit a device to access Internet resources by DNS name or IP address.
+Access Control Lists (ACLs) can be defined in an RFC 8520 Manufacturer Usage Description (MUD) file that permit a device to access Internet resources by their DNS names or IP addresses.
 
-Use of a DNS name rather than IP address in the ACL has many advantages: not only does the layer of indirection permit the mapping of name to IP address to be changed over time, it also generalizes automatically to IPv4 and IPv6 addresses, as well as permitting a variety of load balancing strategies, including multi-CDN deployments wherein load balancing can account for geography and load.
+Use of a DNS name rather than an IP address in an ACL has many advantages: not only does the layer of indirection permit the mapping of a name to IP address(es) to be changed over time, it also generalizes automatically to IPv4 and IPv6 addresses, as well as permitting a variety of load balancing strategies, including multi-CDN deployments wherein load balancing can account for geography and load.
 
-At the MUD policy enforcement point -- the firewall -- there is a problem.
-The firewall has access only to the layer-3 headers of the packet.
+However, the use of DNS names has implications on how ACL are executed at the MUD policy enforcement point (typically, a firewall). Conceretely, the firewall has access only to the Layer 3 headers of the packet.
 This includes the source and destination IP address, and if not encrypted by IPsec, the destination UDP or TCP port number present in the transport header.
 The DNS name is not present!
-
 
 It has been suggested that one answer to this problem is to provide a forced intermediate for the TLS connections.
 In theory, this could be done for TLS 1.2 connections.
@@ -99,37 +96,39 @@ The MUD policy enforcement point could observe the Server Name  Identifier (SNI)
 Some Enterprises do this already.
 But, as this involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic, it requires significant effort.
 
-In TLS 1.3, with or without the use of ECH, middleboxes cannot rely on
+In TLS 1.3 {{?RFC8446}}, with or without the use of Encrypted Client Hello (ECH) {{?I-D.ietf-tls-esni}}, middleboxes cannot rely on
 SNI inspection because malware could lie about the SNI.
 In addition, middleboxes do not have visibility into the server certificate unless
 they are acting as TLS proxies.
 
-So in order to implement these name based ACLs, there must be a mapping between the names in the ACLs and layer-3 IP addresses.
-The first section of this document details a few strategies that are used.
+So in order to implement these name based ACLs, there must be a mapping between the names in the ACLs and IP addresses.
+{{mapping}} details a few strategies that are used.
 
-The second section of this document details how common manufacturer anti-patterns get in the way of this mapping.
+{{dns-anti-p}} details how common manufacturer anti-patterns get in the way of this mapping.
 The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
 
-The third section of this document details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT), DNS over QUIC (DoQ), and DNS over HTTPS (DoH) cause problems for the strategies employed.
+{{sec-priv-out}} details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT) {{?RFC7858}}, DNS over HTTPS (DoH) {{?RFC8484}}, or DNS over QUIC (DoQ) {{?RFC9250}} cause problems for the strategies employed.
 
-The fourth section of this document makes a series of recommendations ("best current practices") for manufacturers on how to use DNS and IP addresses with MUD supporting IoT devices.
+{{sec-reco}} makes a series of recommendations ("best current practices") for manufacturers on how to use DNS and IP addresses with MUD supporting IoT devices.
 
-The Privacy Considerations section concerns itself with issues that DNS-over-TLS and DNS-over-HTTPS are frequently used to deal with.
+{{sec-privacy}} discusses a set of privacy issues that encrypted DNS (DoT, DoH, for example) are frequently used to deal with.
 How these concerns apply to IoT devices located within a residence or enterprise is a key concern.
 
-The Security Considerations section covers some of the negative outcomes should MUD/firewall managers and IoT manufacturers choose not to cooperate.
+{{sec-security}} covers some of the negative outcomes should MUD/firewall managers and IoT manufacturers choose not to cooperate.
 
 # Terminology          {#Terminology}
 
 {::boilerplate bcp14info}
 
-# Strategies to map names {#mapping}
+This document makes use of terms defined in {{RFC8520}} and {{I-D.ietf-dnsop-rfc8499bis}}.
 
-The most naive method is to try to map IP addresses to names using the in-addr.arpa (IPv4), and ipv6.arpa (IPv6) mappings at the time the packet is seen.
+# Strategies to Map Names {#mapping}
 
-## Failing strategy
+The most naive method to identify resources is to map IP addresses to names using the in-addr.arpa (IPv4), and ipv6.arpa (IPv6) mappings at the time the packet is seen.
 
-Attempts to map IP address to names in real time fails for a number of reasons:
+## A Failing Strategy
+
+Attempts to map IP addresses to names in real time fails for a number of reasons:
 
 1. it can not be done fast enough,
 
@@ -141,7 +140,7 @@ Attempts to map IP address to names in real time fails for a number of reasons:
 
 This is not a successful strategy, its use is NOT RECOMMENDED for the reasons explained below.
 
-### Too slow
+### Too Slow
 
 Mapping of IP addresses to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
 For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100 ms per round trip, this easily adds up to significant time before the packet that caused the lookup can be released.
@@ -149,11 +148,11 @@ For a cold DNS cache, this will typically require 2 to 3 NS record lookups to lo
 While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.
 The ACL results can be cached for a period of time given by the TTL of the DNS results, but the DNS lookup must be repeated, e.g, in a few hours or days,when the cached IP address to name binding expires.
 
-### Reveals patterns of usage
+### Reveals Patterns of Usage
 
 By doing the DNS lookups when the traffic occurs, then a passive attacker can see when the device is active, and may be able to derive usage patterns.  They could determine when a home was occupied or not.  This does not require access to all on-path data, just to the DNS requests to the bottom level of the DNS tree.
 
-### Mappings are often incomplete
+### Mappings Are Often Incomplete
 
 A service provider that fails to include an A or AAAA record as part of their forward name publication will find that the new server is simply not used.
 The operational feedback for that mistake is immediate.
@@ -173,7 +172,7 @@ This would easily exceed the UDP/DNS and EDNS0 limits, and require all queries t
 The enumeration of all services/sites that have been at that load balancer might also constitute a security concern.
 To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible names for each reverse name, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
 
-### Forward names can have wildcards
+### Forward Names Can Have Wildcards
 
 In some large hosting providers content is hosted through a domain name that is published as a DNS wildcard (and uses a wildcard certificate).
 For instance, github.io, which is used for hosted content, including the Editors' copy of internet drafts stored on github, does not actually publish any names.
@@ -185,7 +184,7 @@ However, while it is possible to insert up to a few dozen PTR records, many thou
 It would be therefore impossible for the PTR reverse lookup to ever work with these wildcard names.
 
 
-## A successful strategy
+## A Successful Strategy
 
 The simplest successful strategy for translating names for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the physical ACLs.
 
@@ -235,14 +234,14 @@ Where the solution is more complex is when the MUD controller is located elsewhe
 The DNS servers for a particular device may not be known to the MUD controller, nor the MUD controller be even permitted to make recursive queries to that server if it is known.
 In this case, additional installation specific mechanisms are probably needed to get the right view of the DNS.
 
-# DNS and IP Anti-Patterns for IoT device Manufacturers
+# DNS and IP Anti-Patterns for IoT Device Manufacturers {#dns-anti-p}
 
 In many design fields, there are good patterns that should be emulated, and often there are patterns that should not be emulated.
 The latter are called anti-patterns, as per {{antipatterns}}.
 
 This section describes a number of things which IoT manufacturers have been observed to do in the field, each of which presents difficulties for MUD enforcement points.
 
-## Use of IP address literals inprotocol {#inprotocol}
+## Use of IP Address Literals in-protocol {#inprotocol}
 
 A common pattern for a number of devices is to look for firmware updates in a two-step process.
 An initial query is made (often over HTTPS, sometimes with a POST, but the method is immaterial) to a vendor system that knows whether an update is required.
@@ -273,19 +272,19 @@ A third problem involves the use of HTTPS.
 IP address literals do not provide enough context for TLS ServerNameIndicator to be useful {{?RFC6066}}.
 This limits the firmware repository to be a single tenant on that IP address, and for IPv4 (at least), this is no longer a sustainable use of IP addresses.
 
-Finally, it is common in some content-distribution networks (CDN) to use multiple layers of DNS CNAMEs in order to isolate the content-owner's naming system from changes in how the distribution network is organized.
+Finally, it is common in some Content Distribution Networks (CDNs) to use multiple layers of DNS CNAMEs in order to isolate the content-owner's naming system from changes in how the distribution network is organized.
 
 A non-deterministic name or address that is returned within the update protocol, the MUD controller is unable to know what the name is.
 It is therefore unable to make sure that the communication to retrieve the new firmware is permitted by the MUD enforcement point.
 
-## Use of non-deterministic DNS names in-protocol
+## Use of Non-deterministic DNS Names in-protocol
 
 A second pattern is for a control protocol to connect to a known HTTP endpoint.
 This is easily described in MUD.
-Within that control protocol references are made to additional content at other URLs.
+References within that control protocol are made to additional content at other URLs.
 The values of those URLs do not fit any easily described pattern and may point at arbitrary names.
 
-Those names are often within some third-party Content-Distribution-Network (CDN) system, or may be arbitrary names in a cloud-provider storage system (i.e., {{AmazonS3}}, or {{Akamai}}).
+Those names are often within some third-party CDN system, or may be arbitrary names in a cloud-provider storage system (e.g., {{AmazonS3}}, or {{Akamai}}).
 Some of the name components may be specified by the provider.
 
 Such names may be unpredictably chosen by the content provider, and not the content owner, and so impossible to insert into a MUD file.
@@ -298,7 +297,7 @@ This in particular may apply to the location where firmware updates may be retri
 A solution is to use a deterministic DNS name, within the control of the firmware vendor.
 This may be a problem if the content distribution network needs to reorganize which IP address is responsible for which content, or if there is a desire to provide content in geographically relevant ways.
 
-The firmware vendor is therefore likely to be asked to point a CNAME to the CDN network, to a name that might look like "g7.a.example", with the expectation that the CDN vendors DNS will do all the appropriate work to geolocate the transfer.
+The firmware vendor is therefore likely to be asked to point a CNAME to the CDN, to a name that might look like "g7.a.example", with the expectation that the CDN vendors DNS will do all the appropriate work to geolocate the transfer.
 This can be fine for a MUD file, as the MUD controller, if located in the same geography as the IoT device, can follow the CNAME, and can collect the set of resulting IP addresses, along with the TTL for each.
 The MUD controller can then take charge of refreshing that mapping at intervals driven by the TTL.
 
@@ -306,9 +305,9 @@ In some cases, a complete set of geographically distributed servers is known ahe
 As long as the active set of addresses used by the CDN is a strict subset of that list, then the geolocated name can be used for the firmware download itself.
 This use of two addresses is ripe for confusion, however.
 
-## Use of a too generic DNS name
+## Use of a Too Generic DNS Name
 
-Some CDNs make all customer content available at a single URL (such as s3.amazonaws.com).
+Some CDNs make all customer content available at a single URL (such as "s3.example.com").
 This seems to be ideal from a MUD point of view: a completely predictable URL.
 
 The problem is that a compromised device could then connect to the contents of any bucket,
@@ -320,18 +319,18 @@ Amazon has recognized the problems associated with this practice, and aims to ch
 
 The MUD ACLs provide only for permitting end points (hostnames and ports), but do not filter URLs (nor could filtering be enforced within HTTPS).
 
-# DNS privacy and outsourcing versus MUD controllers
+# DNS Privacy and Outsourcing versus MUD Controllers {#sec-priv-out}
 
-{{RFC7858}} and {{RFC8094}} provide for DNS over TLS (DoT) and DNS over HTTPS (DoH).
+{{RFC7858}} and {{RFC8094}} provide for DoT and DoH.
 {{I-D.ietf-dnsop-rfc8499bis}} details the terms.
-But, even with traditional DNS over Port-53 (Do53), it is possible to outsource DNS  queries to other public services, such as those operated by Google, CloudFlare, Verisign, etc.
+But, even with the unencrypted DNS (a.k.a. Do53), it is possible to outsource DNS  queries to other public services, such as those operated by Google, CloudFlare, Verisign, etc.
 
 For some users and classes of device, revealing the DNS queries to those outside entities may constitute a privacy concern.
 For other users the use of an insecure local resolver may constitute a privacy concern.
 
 As described above in {{mapping}} the MUD controller needs to have access to the same resolver(s) as the IoT device.
 
-# Recommendations to IoT device manufacturer on MUD and DNS usage
+# Recommendations To IoT Device Manufacturers on MUD and DNS Usage {#sec-reco}
 
 Inclusion of a MUD file with IoT devices is operationally quite simple.
 It requires only a few small changes to the DHCP client code to express the
@@ -350,7 +349,7 @@ This document discusses a number of challenges that occur relating to how DNS re
 For the reasons explained in {{inprotocol}}, the most important recommendation is to avoid using IP address literals in any protocol.
 Names should always be used.
 
-## Use primary DNS names controlled by the manufacturer
+## Use Primary DNS Names Controlled By The Manufacturer
 
 The second recommendation is to allocate and use names within zones controlled by the manufacturer.
 These names can be populated with an alias (see {{I-D.ietf-dnsop-rfc8499bis}} section 2) that points to the production system.
@@ -359,21 +358,21 @@ Ideally, a different name is used for each logical function, allowing for differ
 While it used to be costly to have a large number of aliases in a web server certificate, this is no longer the case.
 Wildcard certificates are also commonly available which allow for an infinite number of possible names.
 
-## Use Content-Distribution Network with stable names
+## Use Content-Distribution Network with Stable Names
 
-When aliases point to a Content-Distribution Network (CDN), prefer stable names that point to appropriately load balanced targets.
+When aliases point to a CDN, prefer stable names that point to appropriately load balanced targets.
 CDNs that employ very low time-to-live (TTL) values for DNS make it harder for the MUD controller to get the same answer as the IoT Device.
 A CDN that always returns the same set of A and AAAA records, but permutes them to provide the best one first provides a more reliable answer.
 
-## Do not use geofenced names
+## Do Not Use Geofenced Names
 
 Due to the problems with different answers from different DNS servers, described above, a strong recommendation is to avoid using geofenced names.
 
-## Prefer DNS servers learnt from DHCP/Route Advertisements
+## Prefer DNS Servers Learnt From DHCP/Route Advertisements
 
 IoT Devices SHOULD prefer doing DNS with the DHCP provided DNS servers.
 
-The ADD WG has written {{?I-D.ietf-add-dnr}} and {{?I-D.ietf-add-ddr}} to provide information to end devices on how to find locally provisioned secure/private DNS servers.
+The ADD WG has written {{?RFC9463}} and {{?RFC9462}} to provide information to end devices on how to find locally provisioned secure/private DNS servers.
 
 Use of public resolvers instead of the provided DNS resolver, whether Do53, DoQ, DoT or DoH is discouraged.
 Should the network provide such a resolver for use, then there is no reason not to use it, as the network operator has clearly thought about this.
@@ -387,7 +386,7 @@ The use of the operator provided resolvers SHOULD be retried on a periodic basis
 Finally, the list of public resolvers that might be contacted MUST be listed in the MUD file as destinations that are to be permitted!
 This should include the port numbers (i.e., 53, 853 for DoT, 443 for DoH) that will be used as well.
 
-# Privacy Considerations
+# Privacy Considerations {#sec-privacy}
 
 The use of non-local DNS servers exposes the list of names resolved to a third party, including passive eavesdroppers.
 
@@ -419,7 +418,7 @@ Instead, details of how to query and where to get the firmware would be provided
 Aside from the bandwidth savings of downloading the firmware only once, this also makes the number of devices active confidential,  and provides some evidence about which devices have been upgraded and which ones might still be vulnerable.
 (The unpatched devices might be lurking, powered off, lost in a closet)
 
-# Security Considerations
+# Security Considerations {#sec-security}
 
 This document deals with conflicting Security requirements:
 
@@ -432,5 +431,4 @@ used by MUD controllers and IoT devices.
 
 --- back
 
-# Appendices
 
