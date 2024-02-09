@@ -83,7 +83,7 @@ This document makes recommendations on when and how to use DNS names in MUD file
 # Introduction
 
 {{RFC8520}} provides a standardized way to describe how a specific purpose device makes use of Internet resources.
-Access Control Lists (ACLs) can be defined in an RFC8520 Manufacturer Usage Description (MUD) file that permit a device to access Internet resources by DNS name.
+Access Control Lists (ACLs) can be defined in an RFC8520 Manufacturer Usage Description (MUD) file that permit a device to access Internet resources by DNS name or IP address.
 
 Use of a DNS name rather than IP address in the ACL has many advantages: not only does the layer of indirection permit the mapping of name to IP address to be changed over time, it also generalizes automatically to IPv4 and IPv6 addresses, as well as permitting a variety of load balancing strategies, including multi-CDN deployments wherein load balancing can account for geography and load.
 
@@ -108,6 +108,7 @@ So in order to implement these name based ACLs, there must be a mapping between 
 The first section of this document details a few strategies that are used.
 
 The second section of this document details how common manufacturer anti-patterns get in the way of this mapping.
+The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
 
 The third section of this document details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT), DNS over QUIC (DoQ), and DNS over HTTPS (DoH) cause problems for the strategies employed.
 
@@ -370,7 +371,7 @@ Due to the problems with different answers from different DNS servers, described
 
 ## Prefer DNS servers learnt from DHCP/Route Advertisements
 
-IoT Devices SHOULD prefer doing DNS to with the DHCP provided DNS servers.
+IoT Devices SHOULD prefer doing DNS with the DHCP provided DNS servers.
 
 The ADD WG has written {{?I-D.ietf-add-dnr}} and {{?I-D.ietf-add-ddr}} to provide information to end devices on how to find locally provisioned secure/private DNS servers.
 
