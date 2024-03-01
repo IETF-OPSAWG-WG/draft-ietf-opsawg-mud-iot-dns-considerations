@@ -209,6 +209,7 @@ However, in a geographical DNS load balancing system, different answers are give
 There may also be further layers of round-robin indirection.
 
 Aside from the list of records being incomplete, the list may have changed between the time that the MUD controller did the lookup and the time that the IoT device did the lookup, and this change can result in a failure for the ACL to match.
+If the IoT device did not use the same recursive servers as the MUD controller, then geofencing and/or truncated round-robin results could return a different, and non-overlapping set of addresses.
 
 In order to compensate for this, the MUD controller SHOULD regularly perform DNS lookups in order to never have stale data.
 These lookups must be rate limited to avoid excessive load on the DNS servers,
