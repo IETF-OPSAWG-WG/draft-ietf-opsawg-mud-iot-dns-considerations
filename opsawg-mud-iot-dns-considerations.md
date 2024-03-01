@@ -134,7 +134,7 @@ Attempts to map IP addresses to names in real time fails for a number of reasons
 
 2. it reveals usage patterns of the devices,
 
-3. the mapping are often incomplete,
+3. the mappings are often incomplete,
 
 4. Even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
 
@@ -258,7 +258,7 @@ An authoritative server might be tempted to provide an IP address literal inside
 The first is that it eliminates problems with firmware updates that might be caused by lack of DNS, or incompatibilities with DNS.
 For instance a bug that causes interoperability issues with some recursive servers would become unpatchable for devices that were forced to use that recursive resolver type.
 
-The second reason to avoid a IP address literal in the URL is when an inhouse content-distribution system is involved that involves on-demand instances being added (or removed) from a cloud computing architecture.
+The second reason to avoid an IP address literal in the URL is when an inhouse content-distribution system is involved that involves on-demand instances being added (or removed) from a cloud computing architecture.
 
 But, there are more problems with use of IP address literals for the location of the firmware.
 
@@ -326,7 +326,7 @@ The MUD ACLs provide only for permitting end points (hostnames and ports), but d
 {{I-D.ietf-dnsop-rfc8499bis}} details the terms.
 But, even with the unencrypted DNS (a.k.a. Do53), it is possible to outsource DNS  queries to other public services, such as those operated by Google, CloudFlare, Verisign, etc.
 
-For some users and classes of device, revealing the DNS queries to those outside entities may constitute a privacy concern.
+For some users and classes of devices, revealing the DNS queries to those outside entities may constitute a privacy concern.
 For other users the use of an insecure local resolver may constitute a privacy concern.
 
 As described above in {{mapping}} the MUD controller needs to have access to the same resolver(s) as the IoT device.
