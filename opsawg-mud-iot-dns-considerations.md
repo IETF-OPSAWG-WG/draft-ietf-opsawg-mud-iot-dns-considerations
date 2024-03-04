@@ -124,7 +124,7 @@ This document makes use of terms defined in {{RFC8520}} and {{I-D.ietf-dnsop-rfc
 
 # Strategies to Map Names {#mapping}
 
-The most naive method to identify resources is to map IP addresses to names using the in-addr.arpa (IPv4), and ipv6.arpa (IPv6) mappings at the time the packet is seen.
+The most naive method to identify resources is to map IP addresses to names using the in-addr.arpa (IPv4), and ip6.arpa (IPv6) mappings at the time the packet is seen.
 
 ## A Failing Strategy
 
@@ -142,7 +142,7 @@ This is not a successful strategy, its use is NOT RECOMMENDED for the reasons ex
 
 ### Too Slow
 
-Mapping of IP addresses to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
+Mappings of IP addresses to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
 For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100 ms per round trip, this easily adds up to significant time before the packet that caused the lookup can be released.
 
 While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.
@@ -215,7 +215,8 @@ In order to compensate for this, the MUD controller SHOULD regularly perform DNS
 These lookups must be rate limited to avoid excessive load on the DNS servers,
 and it may be necessary to avoid local recursive resolvers.
 The MUD controller SHOULD incorporate its own recursive caching DNS server.
-Properly designed recursive servers should cache data for at least some number of minutes, up to some number of days, while the underlying DNS data can change at a higher frequency, providing different answers to different queries!
+Properly designed recursive servers should cache data for at least some
+number of minutes, up to some number of days (respecting the TTL), while the underlying DNS data can change at a higher frequency, providing different answers to different queries!
 
 A MUD controller that is aware of which recursive DNS server the IoT device will use can instead query that server on a periodic basis.
 Doing so provides three advantages:
@@ -302,7 +303,8 @@ The firmware vendor is therefore likely to be asked to point a CNAME to the CDN,
 This can be fine for a MUD file, as the MUD controller, if located in the same geography as the IoT device, can follow the CNAME, and can collect the set of resulting IP addresses, along with the TTL for each.
 The MUD controller can then take charge of refreshing that mapping at intervals driven by the TTL.
 
-In some cases, a complete set of geographically distributed servers is known ahead of time, and the firmware vendor can list all those addresses DNS for the the name that it lists in the MUD file.
+In some cases, a complete set of geographically distributed servers is known
+ahead of time, and the firmware vendor can list all those addresses in the DNS for the the name that it lists in the MUD file.
 As long as the active set of addresses used by the CDN is a strict subset of that list, then the geolocated name can be used for the firmware download itself.
 This use of two addresses is ripe for confusion, however.
 
@@ -366,6 +368,8 @@ CDNs that employ very low time-to-live (TTL) values for DNS make it harder for t
 A CDN that always returns the same set of A and AAAA records, but permutes them to provide the best one first provides a more reliable answer.
 
 ## Do Not Use Geofenced Names
+
+
 
 Due to the problems with different answers from different DNS servers, described above, a strong recommendation is to avoid using geofenced names.
 
