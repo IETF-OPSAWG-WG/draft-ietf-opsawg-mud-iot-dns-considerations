@@ -367,11 +367,36 @@ When aliases point to a CDN, prefer stable names that point to appropriately loa
 CDNs that employ very low time-to-live (TTL) values for DNS make it harder for the MUD controller to get the same answer as the IoT Device.
 A CDN that always returns the same set of A and AAAA records, but permutes them to provide the best one first provides a more reliable answer.
 
-## Do Not Use Geofenced Names
+## Do Not Use Tailored Responses to answer DNS Names
 
+{{?RFC7871}} defines the edns-client-subnet (ECS) EDNS0 option, and explains
+how authoritative servers sometimes answer queries differently based upon the
+IP address of the end system making the request.
+Ultimately, the decision is based upon some topological notion of closeness.
+This is often used to provide tailored responses to clients, providing them
+with a geographically advantageous answer.
 
+When the MUD controller makes it's DNS query, it is critical that it receive
+an answer which is based upon the same topological decision as when the IoT
+device makes its query.
 
-Due to the problems with different answers from different DNS servers, described above, a strong recommendation is to avoid using geofenced names.
+There are probably ways in which the MUD controller could use the
+edns-client-subnet option to make a query that would get the same treatment
+as when the IoT device makes its query.  If this worked then it would receive
+the same answer as the IoT device.
+
+In practice it could be quite difficult if the IoT device uses a different
+Internet connection, a different firewall, or a different recursive DNS
+server.
+The edns-client-server might be ignored or overridden by any of the DNS infrastructure.
+
+Some tailored responses might only re-order the replies so that the most
+preferred address is first.
+Such a system would be acceptable if the MUD controller had a way to know
+that the list was complete.
+
+But, due to the above problems, a strong recommendation is to avoid using
+tailored responses as part of the names in the MUD file.
 
 ## Prefer DNS Servers Learnt From DHCP/Route Advertisements
 
