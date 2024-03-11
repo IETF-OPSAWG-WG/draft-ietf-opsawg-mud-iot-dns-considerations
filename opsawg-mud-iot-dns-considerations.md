@@ -138,7 +138,7 @@ Attempts to map IP addresses to names in real time fails for a number of reasons
 
 4. Even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
 
-This is not a successful strategy, its use is NOT RECOMMENDED for the reasons explained below.
+This is not a successful strategy, it MUST NOT be used for the reasons explained below.
 
 ### Too Slow
 
@@ -186,7 +186,12 @@ It would be therefore impossible for the PTR reverse lookup to ever work with th
 
 ## A Successful Strategy
 
-The simplest successful strategy for translating names for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the physical ACLs.
+This section details a strategy that a MUD controller could take.
+Within the limits of DNS use detailed in {{sec-reco}}, this process can work.
+
+The simplest successful strategy for translating names for a MUD controller
+to take is to do a DNS lookup on the name (a forward lookup), and then use
+the resulting IP addresses to populate the actual ACLs.
 
 There are still a number of failures possible.
 
@@ -200,7 +205,9 @@ The MUD controller and the device get a matching set, and the ACLs that are set 
 
 There are a number of circumstances in which the list is not exhaustive.
 The simplest is when the round-robin does not return all addresses.
-This is routinely done by geographical DNS load balancing systems.
+This is routinely done by geographical DNS load balancing systems: only the
+addresses that the balancing system wishes to be used are returned.
+
 It can also happen if there are more addresses than will conveniently fit into a DNS reply.
 The reply will be marked as truncated.
 (If DNSSEC resolution will be done, then the entire RR must be retrieved over TCP (or using a larger EDNS(0) size) before being validated)
@@ -447,6 +454,14 @@ In such a system, the IoT device would never contact the manufacturer for versio
 Instead, details of how to query and where to get the firmware would be provided as a MUD extension, and an Enterprise-wide mechanism would retrieve firmware, and then distribute it internally.
 Aside from the bandwidth savings of downloading the firmware only once, this also makes the number of devices active confidential,  and provides some evidence about which devices have been upgraded and which ones might still be vulnerable.
 (The unpatched devices might be lurking, powered off, lost in a closet)
+
+While a vendor proprietary scheme to distribute firmware updates would
+satisfy some of these criteria, operators/Enterprises are less likely to
+install one of these for every single device class.
+Home (residential) users are unlikely to install any system that did not
+provide service to all their devices (and came pre-installed on a home router
+or other home network management system, such as a home Network Attached
+Storage device), so only a system that was non-proprietary is likely to be present.
 
 # Security Considerations {#sec-security}
 
