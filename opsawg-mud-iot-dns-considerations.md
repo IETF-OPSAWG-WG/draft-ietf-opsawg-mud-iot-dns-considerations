@@ -98,7 +98,7 @@ In order for manufacturers to understand how to configure DNS associated with na
 
 This model is also non-normative, but is included so that IoT device manufacturers can understand how the DNS will be used to resolve the names they use.
 
-There are other methods that do not work, and some of them are detailed in the non-normative {{dns-anti-p}}.
+There are some ways of using DNS that will present problems for MUD controllers, which  {{dns-anti-p}} explains.
 
 {{sec-priv-out}} details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT) {{?RFC7858}}, DNS over HTTPS (DoH) {{?RFC8484}}, or DNS over QUIC (DoQ) {{?RFC9250}} can cause problems with the strategies employed.
 
