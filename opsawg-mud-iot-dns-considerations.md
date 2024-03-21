@@ -120,11 +120,10 @@ The term "anti-pattern" comes from agile software design literature, as per {{an
 # A model for MUD controller mapping of names to addresses {#mapping}
 
 This section details a strategy that a MUD controller could take.
-Within the limits of DNS use detailed in {{sec-reco}}, this process can work.
+Within the limits of DNS use detailed in {{sec-reco}}, this process can work
+There are other ways, detailed in {{failingstrategy}} which just do not work.
 
-The simplest successful strategy for translating names for a MUD controller
-to take is to do a DNS lookup on the name (a forward lookup), and then use
-the resulting IP addresses to populate the actual ACLs.
+The simplest successful strategy for translating names for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the actual ACLs.
 
 There a number of possible failures, and the goal of this section is to explain how some common  DNS usages may fail.
 
@@ -413,7 +412,7 @@ used by MUD controllers and IoT devices.
 
 --- back
 
-# A Failing Strategy --- Anti-Patterns
+# A Failing Strategy --- Anti-Patterns {#failingstrategy}
 
 Attempts to map IP addresses to names in real time fails for a number of reasons:
 
