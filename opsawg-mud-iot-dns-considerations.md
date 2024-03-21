@@ -33,10 +33,10 @@ normative:
   RFC1794:  # DNS round robin support
   I-D.ietf-dnsop-rfc8499bis:
   RFC9019: SUITARCH
-  RFC7858:
   RFC8094:
 
 informative:
+  RFC7858:
   AmazonS3:
     title: "Amazon S3"
     target: "https://en.wikipedia.org/wiki/Amazon_S3"
