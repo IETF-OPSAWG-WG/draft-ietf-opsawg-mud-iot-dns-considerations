@@ -121,7 +121,7 @@ The term "anti-pattern" comes from agile software design literature, as per {{an
 
 This section details a strategy that a MUD controller could take.
 Within the limits of DNS use detailed in {{sec-reco}}, this process can work.
-There are other ways, detailed in {{failingstrategy}} which just do not work.
+The methods detailed in {{failingstrategy}} just will not work.
 
 The simplest successful strategy for translating names for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the actual ACLs.
 
