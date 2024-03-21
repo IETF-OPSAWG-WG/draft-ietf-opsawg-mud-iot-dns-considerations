@@ -96,7 +96,7 @@ So in order to implement these name based ACLs, there must be a mapping between 
 In order for manufacturers to understand how to configure DNS associated with name based ACLs, a model of how the DNS resolution will be done by MUD controllers is necessary.
 {{mapping}} models some good strategies that are used.
 
-This model is also non-normative, but is included so that IoT device manufacturers can understand how the DNS will be used to resolve the names they use.
+This model is non-normative: but is included so that IoT device manufacturers can understand how the DNS will be used to resolve the names they use.
 
 There are some ways of using DNS that will present problems for MUD controllers, which  {{dns-anti-p}} explains.
 
@@ -120,7 +120,7 @@ The term "anti-pattern" comes from agile software design literature, as per {{an
 # A model for MUD controller mapping of names to addresses {#mapping}
 
 This section details a strategy that a MUD controller could take.
-Within the limits of DNS use detailed in {{sec-reco}}, this process can work
+Within the limits of DNS use detailed in {{sec-reco}}, this process can work.
 There are other ways, detailed in {{failingstrategy}} which just do not work.
 
 The simplest successful strategy for translating names for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the actual ACLs.
