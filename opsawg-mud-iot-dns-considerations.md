@@ -122,6 +122,8 @@ How these concerns apply to IoT devices located within a residence or enterprise
 
 This document makes use of terms defined in {{RFC8520}} and {{I-D.ietf-dnsop-rfc8499bis}}.
 
+The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
+
 # Strategies to Map Names {#mapping}
 
 The most naive method to identify resources is to map IP addresses to names using the in-addr.arpa (IPv4), and ip6.arpa (IPv6) mappings at the time the packet is seen.
@@ -419,8 +421,6 @@ used by MUD controllers and IoT devices.
 --- back
 
 # A Failing Strategy --- Anti-Patterns
-
-The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
 
 Attempts to map IP addresses to names in real time fails for a number of reasons:
 
