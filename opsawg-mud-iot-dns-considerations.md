@@ -91,30 +91,23 @@ Conceretely, the firewall has access only to the Layer 3 headers of the packet.
 This includes the source and destination IP address, and if not encrypted by IPsec, the destination UDP or TCP port number present in the transport header.
 The DNS name is not present!
 
-It has been suggested that one answer to this problem is to provide a forced intermediate for the TLS connections.
-In theory, this could be done for TLS 1.2 connections, but it is significantly more involved for TLS 1.3.
-The MUD policy enforcement point could observe the Server Name  Identifier (SNI) {{?RFC6066}}.
-Some Enterprises do this already.
-But, as this involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic, it requires significant effort, and comes with significant negative effects.
-
 So in order to implement these name based ACLs, there must be a mapping between the names in the ACLs and IP addresses.
 
-In order for manufacturers to understand how to best use name based ACLs, a model of how the DNS resolution will be done by MUD controllers is necessary.
-There are many methods that do not work, and some of them are detailed in the non-normative {{dns-anti-p}}.
-
+In order for manufacturers to understand how to configure DNS associated with name based ACLs, a model of how the DNS resolution will be done by MUD controllers is necessary.
 {{mapping}} models some good strategies that are used.
+
 This model is also non-normative, but is included so that IoT device manufacturers can understand how the DNS will be used to resolve the names they use.
 
- details how common manufacturer anti-patterns get in the way of this mapping.
+There are other methods that do not work, and some of them are detailed in the non-normative {{dns-anti-p}}.
 
-{{sec-priv-out}} details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT) {{?RFC7858}}, DNS over HTTPS (DoH) {{?RFC8484}}, or DNS over QUIC (DoQ) {{?RFC9250}} cause problems for the strategies employed.
+{{sec-priv-out}} details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT) {{?RFC7858}}, DNS over HTTPS (DoH) {{?RFC8484}}, or DNS over QUIC (DoQ) {{?RFC9250}} can cause problems with the strategies employed.
 
-{{sec-reco}} makes a series of recommendations ("best current practices") for manufacturers on how to use DNS and IP addresses with MUD supporting IoT devices.
+The core of this document, is {{sec-reco}}, which makes a series of recommendations ("best current practices") for manufacturers on how to use DNS and IP addresses with MUD supporting IoT devices.
 
 {{sec-privacy}} discusses a set of privacy issues that encrypted DNS (DoT, DoH, for example) are frequently used to deal with.
 How these concerns apply to IoT devices located within a residence or enterprise is a key concern.
 
-{{sec-security}} covers some of the negative outcomes should MUD/firewall managers and IoT manufacturers choose not to cooperate.
+{{sec-security}} also covers some of the negative outcomes should MUD/firewall managers and IoT manufacturers choose not to cooperate.
 
 # Terminology          {#Terminology}
 
@@ -124,11 +117,7 @@ This document makes use of terms defined in {{RFC8520}} and {{I-D.ietf-dnsop-rfc
 
 The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
 
-# Strategies to Map Names {#mapping}
-
-The most naive method to identify resources is to map IP addresses to names using the in-addr.arpa (IPv4), and ip6.arpa (IPv6) mappings at the time the packet is seen.
-
-## A Successful Strategy
+# A model for MUD controller mapping of names to addresses {#mapping}
 
 This section details a strategy that a MUD controller could take.
 Within the limits of DNS use detailed in {{sec-reco}}, this process can work.
@@ -137,12 +126,16 @@ The simplest successful strategy for translating names for a MUD controller
 to take is to do a DNS lookup on the name (a forward lookup), and then use
 the resulting IP addresses to populate the actual ACLs.
 
-There are still a number of failures possible.
+There a number of possible failures, and the goal of this section is to explain how some common  DNS usages may fail.
+
+## Non-Deterministic Mappings
 
 The most important one is that the mapping of the names to IP addresses may be non-deterministic.
+
 {{RFC1794}} describes the very common mechanism that returns DNS A (or reasonably AAAA) records in a permuted order.
 This is known as Round Robin DNS, and it has been used for many decades.
-The device is intended to use the first IP address that is returned, and each query returns addresses in a different ordering, splitting the load among many servers.
+The historical intent is that the requestor will tend to use the first IP address that is returned.
+As each query results in addresses in a different ordering, the effect is to split the load among many servers.
 
 This situation does not result in failures as long as all possible A/AAAA records are returned.
 The MUD controller and the device get a matching set, and the ACLs that are set up cover all possibilities.
