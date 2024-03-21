@@ -86,26 +86,26 @@ Access Control Lists (ACLs) can be defined in an RFC 8520 Manufacturer Usage Des
 
 Use of a DNS name rather than an IP address in an ACL has many advantages: not only does the layer of indirection permit the mapping of a name to IP address(es) to be changed over time, it also generalizes automatically to IPv4 and IPv6 addresses, as well as permitting a variety of load balancing strategies, including multi-CDN deployments wherein load balancing can account for geography and load.
 
-However, the use of DNS names has implications on how ACL are executed at the MUD policy enforcement point (typically, a firewall). Conceretely, the firewall has access only to the Layer 3 headers of the packet.
+However, the use of DNS names has implications on how ACL are executed at the MUD policy enforcement point (typically, a firewall).
+Conceretely, the firewall has access only to the Layer 3 headers of the packet.
 This includes the source and destination IP address, and if not encrypted by IPsec, the destination UDP or TCP port number present in the transport header.
 The DNS name is not present!
 
 It has been suggested that one answer to this problem is to provide a forced intermediate for the TLS connections.
-In theory, this could be done for TLS 1.2 connections.
+In theory, this could be done for TLS 1.2 connections, but it is significantly more involved for TLS 1.3.
 The MUD policy enforcement point could observe the Server Name  Identifier (SNI) {{?RFC6066}}.
 Some Enterprises do this already.
-But, as this involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic, it requires significant effort.
-
-In TLS 1.3 {{?RFC8446}}, with or without the use of Encrypted Client Hello (ECH) {{?I-D.ietf-tls-esni}}, middleboxes cannot rely on
-SNI inspection because malware could lie about the SNI.
-In addition, middleboxes do not have visibility into the server certificate unless
-they are acting as TLS proxies.
+But, as this involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic, it requires significant effort, and comes with significant negative effects.
 
 So in order to implement these name based ACLs, there must be a mapping between the names in the ACLs and IP addresses.
-{{mapping}} details a few strategies that are used.
 
-{{dns-anti-p}} details how common manufacturer anti-patterns get in the way of this mapping.
-The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
+In order for manufacturers to understand how to best use name based ACLs, a model of how the DNS resolution will be done by MUD controllers is necessary.
+There are many methods that do not work, and some of them are detailed in the non-normative {{dns-anti-p}}.
+
+{{mapping}} models some good strategies that are used.
+This model is also non-normative, but is included so that IoT device manufacturers can understand how the DNS will be used to resolve the names they use.
+
+ details how common manufacturer anti-patterns get in the way of this mapping.
 
 {{sec-priv-out}} details how current trends in DNS resolution such as public DNS servers, DNS over TLS (DoT) {{?RFC7858}}, DNS over HTTPS (DoH) {{?RFC8484}}, or DNS over QUIC (DoQ) {{?RFC9250}} cause problems for the strategies employed.
 
@@ -125,64 +125,6 @@ This document makes use of terms defined in {{RFC8520}} and {{I-D.ietf-dnsop-rfc
 # Strategies to Map Names {#mapping}
 
 The most naive method to identify resources is to map IP addresses to names using the in-addr.arpa (IPv4), and ip6.arpa (IPv6) mappings at the time the packet is seen.
-
-## A Failing Strategy
-
-Attempts to map IP addresses to names in real time fails for a number of reasons:
-
-1. it can not be done fast enough,
-
-2. it reveals usage patterns of the devices,
-
-3. the mappings are often incomplete,
-
-4. Even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
-
-This is not a successful strategy, it MUST NOT be used for the reasons explained below.
-
-### Too Slow
-
-Mappings of IP addresses to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
-For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100 ms per round trip, this easily adds up to significant time before the packet that caused the lookup can be released.
-
-While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.
-The ACL results can be cached for a period of time given by the TTL of the DNS results, but the DNS lookup must be repeated, e.g, in a few hours or days,when the cached IP address to name binding expires.
-
-### Reveals Patterns of Usage
-
-By doing the DNS lookups when the traffic occurs, then a passive attacker can see when the device is active, and may be able to derive usage patterns.  They could determine when a home was occupied or not.  This does not require access to all on-path data, just to the DNS requests to the bottom level of the DNS tree.
-
-### Mappings Are Often Incomplete
-
-A service provider that fails to include an A or AAAA record as part of their forward name publication will find that the new server is simply not used.
-The operational feedback for that mistake is immediate.
-The same is not true for reverse names: they can often be incomplete or incorrect for months or even years without visible effect on operations.
-
-Service providers often find it difficult to update reverse maps in a timely fashion, assuming that they can do it at all.
-Many cloud based solutions dynamically assign IP addresses to services, often as the service grows and shrinks, reassigning those IP addresses to other services quickly.
-The use of HTTP 1.1 Virtual Hosting may allow addresses and entire front-end systems to be re-used dynamically without even reassigning the IP addresses.
-
-In some cases there are multiple layers of CNAME between the original name and the target service name.
-This is often due to a load balancing layer in the DNS, followed by a load balancing layer at the HTTP level.
-
-The reverse name for the IP address of the load balancer usually does not change.
-If hundreds of web services are funneled through the load balancer, it would require hundreds of PTR records to be deployed.
-This would easily exceed the UDP/DNS and EDNS0 limits, and require all queries to use TCP, which would further slow down loading of the records.
-
-The enumeration of all services/sites that have been at that load balancer might also constitute a security concern.
-To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible names for each reverse name, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
-
-### Forward Names Can Have Wildcards
-
-In some large hosting providers content is hosted through a domain name that is published as a DNS wildcard (and uses a wildcard certificate).
-For instance, github.io, which is used for hosted content, including the Editors' copy of internet drafts stored on github, does not actually publish any names.
-Instead, a wildcard exists to answer all potential names: requests are routed appropriate once they are received.
-
-This kind of system works well for self-managed hosted content.
-However, while it is possible to insert up to a few dozen PTR records, many thousand entries are not possible, nor is it possible to deal with the unlimited (infinite) number of possibilities that a wildcard supports.
-
-It would be therefore impossible for the PTR reverse lookup to ever work with these wildcard names.
-
 
 ## A Successful Strategy
 
@@ -475,5 +417,64 @@ This document takes the view that the two requirements do not need to be in conf
 used by MUD controllers and IoT devices.
 
 --- back
+
+# A Failing Strategy --- Anti-Patterns
+
+The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
+
+Attempts to map IP addresses to names in real time fails for a number of reasons:
+
+1. it can not be done fast enough,
+
+2. it reveals usage patterns of the devices,
+
+3. the mappings are often incomplete,
+
+4. Even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
+
+This is not a successful strategy, it MUST NOT be used for the reasons explained below.
+
+## Too Slow
+
+Mappings of IP addresses to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
+For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100 ms per round trip, this easily adds up to significant time before the packet that caused the lookup can be released.
+
+While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.
+The ACL results can be cached for a period of time given by the TTL of the DNS results, but the DNS lookup must be repeated, e.g, in a few hours or days,when the cached IP address to name binding expires.
+
+## Reveals Patterns of Usage
+
+By doing the DNS lookups when the traffic occurs, then a passive attacker can see when the device is active, and may be able to derive usage patterns.  They could determine when a home was occupied or not.  This does not require access to all on-path data, just to the DNS requests to the bottom level of the DNS tree.
+
+## Mappings Are Often Incomplete
+
+A service provider that fails to include an A or AAAA record as part of their forward name publication will find that the new server is simply not used.
+The operational feedback for that mistake is immediate.
+The same is not true for reverse names: they can often be incomplete or incorrect for months or even years without visible effect on operations.
+
+Service providers often find it difficult to update reverse maps in a timely fashion, assuming that they can do it at all.
+Many cloud based solutions dynamically assign IP addresses to services, often as the service grows and shrinks, reassigning those IP addresses to other services quickly.
+The use of HTTP 1.1 Virtual Hosting may allow addresses and entire front-end systems to be re-used dynamically without even reassigning the IP addresses.
+
+In some cases there are multiple layers of CNAME between the original name and the target service name.
+This is often due to a load balancing layer in the DNS, followed by a load balancing layer at the HTTP level.
+
+The reverse name for the IP address of the load balancer usually does not change.
+If hundreds of web services are funneled through the load balancer, it would require hundreds of PTR records to be deployed.
+This would easily exceed the UDP/DNS and EDNS0 limits, and require all queries to use TCP, which would further slow down loading of the records.
+
+The enumeration of all services/sites that have been at that load balancer might also constitute a security concern.
+To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible names for each reverse name, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
+
+## Forward Names Can Have Wildcards
+
+In some large hosting providers content is hosted through a domain name that is published as a DNS wildcard (and uses a wildcard certificate).
+For instance, github.io, which is used for hosted content, including the Editors' copy of internet drafts stored on github, does not actually publish any names.
+Instead, a wildcard exists to answer all potential names: requests are routed appropriate once they are received.
+
+This kind of system works well for self-managed hosted content.
+However, while it is possible to insert up to a few dozen PTR records, many thousand entries are not possible, nor is it possible to deal with the unlimited (infinite) number of possibilities that a wildcard supports.
+
+It would be therefore impossible for the PTR reverse lookup to ever work with these wildcard names.
 
 
