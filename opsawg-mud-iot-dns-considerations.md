@@ -71,11 +71,11 @@ venue:
 
 --- abstract
 
-This document details concerns about how Internet of Things (IoT) devices use IP
+This document details considerations about how Internet of Things (IoT) devices use IP
 addresses and DNS names.
 These concerns become acute as network operators begin deploying RFC 8520 Manufacturer Usage Description (MUD) definitions to control device access.
 
-Alos, this document makes recommendations on when and how to use DNS names in MUD files.
+Also, this document makes recommendations on when and how to use DNS names in MUD files.
 
 --- middle
 
@@ -117,19 +117,19 @@ This document makes use of terms defined in {{RFC8520}} and {{I-D.ietf-dnsop-rfc
 
 The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
 
-# A model for MUD controller mapping of names to addresses {#mapping}
+# A model for MUD controller mapping of DNS names to addresses {#mapping}
 
 This section details a strategy that a MUD controller could take.
 Within the limits of DNS use detailed in {{sec-reco}}, this process can work.
 The methods detailed in {{failingstrategy}} just will not work.
 
-The simplest successful strategy for translating names for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the actual ACLs.
+The simplest successful strategy for translating DNS names for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the actual ACLs.
 
 There a number of possible failures, and the goal of this section is to explain how some common  DNS usages may fail.
 
 ## Non-Deterministic Mappings
 
-The most important one is that the mapping of the names to IP addresses may be non-deterministic.
+The most important one is that the mapping of the DNS names to IP addresses may be non-deterministic.
 
 {{RFC1794}} describes the very common mechanism that returns DNS A (or reasonably AAAA) records in a permuted order.
 This is known as Round Robin DNS, and it has been used for many decades.
@@ -227,14 +227,14 @@ It is therefore unable to make sure that the communication to retrieve the new f
 A second pattern is for a control protocol to connect to a known HTTP endpoint.
 This is easily described in MUD.
 References within that control protocol are made to additional content at other URLs.
-The values of those URLs do not fit any easily described pattern and may point at arbitrary names.
+The values of those URLs do not fit any easily described pattern and may point at arbitrary DNS names.
 
-Those names are often within some third-party CDN system, or may be arbitrary names in a cloud-provider storage system (e.g., {{AmazonS3}}, or {{Akamai}}).
+Those DNS names are often within some third-party CDN system, or may be arbitrary DNS names in a cloud-provider storage system (e.g., {{AmazonS3}}, or {{Akamai}}).
 Some of the name components may be specified by the provider.
 
-Such names may be unpredictably chosen by the content provider, and not the content owner, and so impossible to insert into a MUD file.
+Such DNS names may be unpredictably chosen by the content provider, and not the content owner, and so impossible to insert into a MUD file.
 
-Even if the content provider chosen names are deterministic they may change at a rate much faster
+Even if the content provider chosen DNS names are deterministic they may change at a rate much faster
 than MUD files can be updated.
 
 This in particular may apply to the location where firmware updates may be retrieved.
@@ -293,24 +293,24 @@ This document discusses a number of challenges that occur relating to how DNS re
 ## Consistently use DNS
 
 For the reasons explained in {{inprotocol}}, the most important recommendation is to avoid using IP address literals in any protocol.
-Names should always be used.
+DNS names should always be used.
 
 ## Use Primary DNS Names Controlled By The Manufacturer
 
-The second recommendation is to allocate and use names within zones controlled by the manufacturer.
-These names can be populated with an alias (see {{I-D.ietf-dnsop-rfc8499bis}} section 2) that points to the production system.
+The second recommendation is to allocate and use DNS names within zones controlled by the manufacturer.
+These DNS names can be populated with an alias (see {{I-D.ietf-dnsop-rfc8499bis}} section 2) that points to the production system.
 Ideally, a different name is used for each logical function, allowing for different rules in the MUD file to be enabled and disabled.
 
 While it used to be costly to have a large number of aliases in a web server certificate, this is no longer the case.
-Wildcard certificates are also commonly available which allow for an infinite number of possible names.
+Wildcard certificates are also commonly available which allow for an infinite number of possible DNS names.
 
-## Use Content-Distribution Network with Stable Names
+## Use Content-Distribution Network with Stable DNS Names
 
-When aliases point to a CDN, prefer stable names that point to appropriately load balanced targets.
+When aliases point to a CDN, prefer stable DNS names that point to appropriately load balanced targets.
 CDNs that employ very low time-to-live (TTL) values for DNS make it harder for the MUD controller to get the same answer as the IoT Device.
 A CDN that always returns the same set of A and AAAA records, but permutes them to provide the best one first provides a more reliable answer.
 
-## Do Not Use Tailored Responses to answer DNS Names
+## Do Not Use Tailored Responses to answer DNS Names {#tailorednames}
 
 {{?RFC7871}} defines the edns-client-subnet (ECS) EDNS0 option, and explains
 how authoritative servers sometimes answer queries differently based upon the
@@ -339,11 +339,11 @@ Such a system would be acceptable if the MUD controller had a way to know
 that the list was complete.
 
 But, due to the above problems, a strong recommendation is to avoid using
-tailored responses as part of the names in the MUD file.
+tailored responses as part of the DNS names in the MUD file.
 
-## Prefer DNS Servers Learnt From DHCP/Route Advertisements
+## Prefer DNS Servers Learnt From DHCP/Router Advertisements
 
-IoT Devices SHOULD prefer doing DNS with the DHCP provided DNS servers.
+IoT Devices SHOULD prefer doing DNS with the DHCP provided DNS servers, or DNS servers learnt from Router Advertisements {{?RFC8106}}.
 
 The ADD WG has written {{?RFC9463}} and {{?RFC9462}} to provide information to end devices on how to find locally provisioned secure/private DNS servers.
 
@@ -351,7 +351,7 @@ Use of public resolvers instead of the provided DNS resolver, whether Do53, DoQ,
 Should the network provide such a resolver for use, then there is no reason not to use it, as the network operator has clearly thought about this.
 
 Some manufacturers would like to have a fallback to using a public resolver to mitigate against local misconfiguration.
-There are a number of reasons to avoid this, or at least do this very carefully.
+There are a number of reasons to avoid this, detailed in {{tailorednames}}. The public resolver might not return the same tailored names that the MUD controller would get.
 
 It is recommended that use of non-local resolvers is only done when the locally provided resolvers provide no answers to any queries at all, and do so repeatedly.
 The use of the operator provided resolvers SHOULD be retried on a periodic basis, and once they answer, there SHOULD be no further attempts to contact public resolvers.
@@ -361,7 +361,7 @@ This should include the port numbers (i.e., 53, 853 for DoT, 443 for DoH) that w
 
 # Privacy Considerations {#sec-privacy}
 
-The use of non-local DNS servers exposes the list of names resolved to a third party, including passive eavesdroppers.
+The use of non-local DNS servers exposes the list of DNS names resolved to a third party, including passive eavesdroppers.
 
 The use of DoT and DoH eliminates the threat from passive eavesdropping, but still exposes the list to the operator of the DoT or DoH server.
 There are additional methods to help preserve privacy, such as described by {{?RFC9230}}.
@@ -414,7 +414,7 @@ used by MUD controllers and IoT devices.
 
 # A Failing Strategy --- Anti-Patterns {#failingstrategy}
 
-Attempts to map IP addresses to names in real time fails for a number of reasons:
+Attempts to map IP addresses to DNS names in real time often fails for a number of reasons:
 
 1. it can not be done fast enough,
 
@@ -428,7 +428,7 @@ This is not a successful strategy, it MUST NOT be used for the reasons explained
 
 ## Too Slow
 
-Mappings of IP addresses to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
+Mappings of IP addresses to DNS names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
 For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100 ms per round trip, this easily adds up to significant time before the packet that caused the lookup can be released.
 
 While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.
@@ -440,33 +440,33 @@ By doing the DNS lookups when the traffic occurs, then a passive attacker can se
 
 ## Mappings Are Often Incomplete
 
-A service provider that fails to include an A or AAAA record as part of their forward name publication will find that the new server is simply not used.
+An IoT manufacturer with a cloud service provider that fails to include an A or AAAA record as part of their forward name publication will find that the new server is simply not used.
 The operational feedback for that mistake is immediate.
-The same is not true for reverse names: they can often be incomplete or incorrect for months or even years without visible effect on operations.
+The same is not true for reverse DNS mappings: they can often be incomplete or incorrect for months or even years without visible effect on operations.
 
-Service providers often find it difficult to update reverse maps in a timely fashion, assuming that they can do it at all.
+IoT manufacturer cloud service providers often find it difficult to update reverse maps in a timely fashion, assuming that they can do it at all.
 Many cloud based solutions dynamically assign IP addresses to services, often as the service grows and shrinks, reassigning those IP addresses to other services quickly.
 The use of HTTP 1.1 Virtual Hosting may allow addresses and entire front-end systems to be re-used dynamically without even reassigning the IP addresses.
 
 In some cases there are multiple layers of CNAME between the original name and the target service name.
 This is often due to a load balancing layer in the DNS, followed by a load balancing layer at the HTTP level.
 
-The reverse name for the IP address of the load balancer usually does not change.
+The reverse mapping for the IP address of the load balancer usually does not change.
 If hundreds of web services are funneled through the load balancer, it would require hundreds of PTR records to be deployed.
 This would easily exceed the UDP/DNS and EDNS0 limits, and require all queries to use TCP, which would further slow down loading of the records.
 
 The enumeration of all services/sites that have been at that load balancer might also constitute a security concern.
-To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible names for each reverse name, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
+To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible DNS names for each reverse mapping, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
 
-## Forward Names Can Have Wildcards
+## Forward DNS Names Can Have Wildcards
 
 In some large hosting providers content is hosted through a domain name that is published as a DNS wildcard (and uses a wildcard certificate).
-For instance, github.io, which is used for hosted content, including the Editors' copy of internet drafts stored on github, does not actually publish any names.
-Instead, a wildcard exists to answer all potential names: requests are routed appropriate once they are received.
+For instance, github.io, which is used for hosted content, including the Editors' copy of internet drafts stored on github, does not actually publish any DNS names.
+Instead, a wildcard exists to answer all potential DNS names: requests are routed appropriate once they are received.
 
 This kind of system works well for self-managed hosted content.
 However, while it is possible to insert up to a few dozen PTR records, many thousand entries are not possible, nor is it possible to deal with the unlimited (infinite) number of possibilities that a wildcard supports.
 
-It would be therefore impossible for the PTR reverse lookup to ever work with these wildcard names.
+It would be therefore impossible for the PTR reverse lookup to ever work with these wildcard DNS names.
 
 
