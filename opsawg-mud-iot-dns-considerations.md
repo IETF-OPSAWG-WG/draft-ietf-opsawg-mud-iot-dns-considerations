@@ -444,19 +444,19 @@ An IoT manufacturer with a cloud service provider that fails to include an A or 
 The operational feedback for that mistake is immediate.
 The same is not true for reverse DNS mappings: they can often be incomplete or incorrect for months or even years without visible effect on operations.
 
-IoT manufacturer cloud service providers often find it difficult to update reverse maps in a timely fashion, assuming that they can do it at all.
+IoT manufacturer cloud service providers often find it difficult to update reverse DNS maps in a timely fashion, assuming that they can do it at all.
 Many cloud based solutions dynamically assign IP addresses to services, often as the service grows and shrinks, reassigning those IP addresses to other services quickly.
 The use of HTTP 1.1 Virtual Hosting may allow addresses and entire front-end systems to be re-used dynamically without even reassigning the IP addresses.
 
 In some cases there are multiple layers of CNAME between the original name and the target service name.
 This is often due to a load balancing layer in the DNS, followed by a load balancing layer at the HTTP level.
 
-The reverse mapping for the IP address of the load balancer usually does not change.
+The reverse DNS mapping for the IP address of the load balancer usually does not change.
 If hundreds of web services are funneled through the load balancer, it would require hundreds of PTR records to be deployed.
 This would easily exceed the UDP/DNS and EDNS0 limits, and require all queries to use TCP, which would further slow down loading of the records.
 
 The enumeration of all services/sites that have been at that load balancer might also constitute a security concern.
-To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible DNS names for each reverse mapping, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
+To limit churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible DNS names for each reverse DNS mapping, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
 
 ## Forward DNS Names Can Have Wildcards
 
