@@ -359,6 +359,30 @@ The use of the operator provided resolvers SHOULD be retried on a periodic basis
 Finally, the list of public resolvers that might be contacted MUST be listed in the MUD file as destinations that are to be permitted!
 This should include the port numbers (i.e., 53, 853 for DoT, 443 for DoH) that will be used as well.
 
+# Interactions with mDNS and DNSSD
+
+Unicast DNS requests are not the only way to map names to IP addresses.
+IoT devices might also use mDNS {{?RFC6762}}, both to be discovered by other devices, and also to discover other devices.
+
+mDNS replies include A and AAAA records, and it is conceivable that these replies contain addresses which are not local to the link on which they are made.
+This could be the result of another device which contains malware.
+An unsuspecting IoT device could be led to contact some external host as a result.
+Protecting against such things is one of the benefits of MUD.
+
+In the unlikely case that the external host has been listed as a legitimate destination in a MUD file, then communication will continue as expected.
+As an example of this, an IoT device might look for a name like "update.local" in order to find a source of firmware updates.
+It could be led to connect to some external host that was listed as "update.example" in the MUD file.
+This should work fine if the name "update.example" does not require any kind of tailored reply.
+
+In residential networks there has typically not been more than one network (although this is changing through work like {{?I-D.ietf-snac-simple}}), but on campus or enterprise networks, having more than one network is not unusual.
+In such networks, mDNS is being replaced with DNS-SD {{?RFC8882}}, and in such a situation, connections could be initiated to other parts of the network.
+Such connections might traverse the MUD policy enforcement point (an intra-department firewall), and could very well be rejected because the MUD controller did not know about that interaction.
+
+{{RFC8250}} includes a number of provisions for controlling internal communications, including
+complex communications like same manufacturer ACLs.
+To date, this aspect of MUD has been difficult to describe.
+This document does not consider internal communications to be in scope.
+
 # Privacy Considerations {#sec-privacy}
 
 The use of non-local DNS servers exposes the list of DNS names resolved to a third party, including passive eavesdroppers.
