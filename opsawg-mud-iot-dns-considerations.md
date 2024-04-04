@@ -173,9 +173,18 @@ The solution of using the same caching recursive resolver as the target device i
 The device is usually also the policy enforcement point for the ACLs, and a caching resolver is  typically located on the same device.
 In addition to convenience, there is a shared fate advantage: as all three components are running on the same device, if the device is rebooted, clearing the cache, then all three components will  get restarted when the device is restarted.
 
-Where the solution is more complex is when the MUD controller is located elsewhere in an Enterprise, or remotely in a cloud such as when a Software Defined Network (SDN) is used to manage the ACLs.
+Where the solution is more complex and sometimes more fragile is when the MUD controller is located elsewhere in an Enterprise, or remotely in a cloud such as when a Software Defined Network (SDN) is used to manage the ACLs.
 The DNS servers for a particular device may not be known to the MUD controller, nor the MUD controller be even permitted to make recursive queries to that server if it is known.
-In this case, additional installation specific mechanisms are probably needed to get the right view of the DNS.
+In this case, additional installation specific mechanisms are probably needed
+to get the right view of the DNS.
+
+A critical failure can occur when the device makes a new DNS request and
+receives a new set of IP addresses, but the MUD controller's copy of the
+addresses has not yet reached their time to live.
+In that case, the MUD controller still has the old address(es) implemented in
+the ACLs, but the IoT device has a new address not previously returned to the
+MUD controller.
+This can result in a connectivity failure.
 
 # DNS and IP Anti-Patterns for IoT Device Manufacturers {#dns-anti-p}
 
