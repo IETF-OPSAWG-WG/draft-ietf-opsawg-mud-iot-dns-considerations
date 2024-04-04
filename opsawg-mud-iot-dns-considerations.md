@@ -36,7 +36,6 @@ normative:
   RFC8094:
 
 informative:
-  RFC7858:
   AmazonS3:
     title: "Amazon S3"
     target: "https://en.wikipedia.org/wiki/Amazon_S3"
@@ -49,7 +48,6 @@ informative:
     title: "Mud Maker"
     target: "https://mudmaker.org"
     date: 2019
-  RFC9238:
   antipatterns:
     target: "https://www.agilealliance.org/glossary/antipattern"
     title: "AntiPattern"
@@ -378,7 +376,7 @@ In residential networks there has typically not been more than one network (alth
 In such networks, mDNS is being replaced with DNS-SD {{?RFC8882}}, and in such a situation, connections could be initiated to other parts of the network.
 Such connections might traverse the MUD policy enforcement point (an intra-department firewall), and could very well be rejected because the MUD controller did not know about that interaction.
 
-{{RFC8250}} includes a number of provisions for controlling internal communications, including
+{{!RFC8250}} includes a number of provisions for controlling internal communications, including
 complex communications like same manufacturer ACLs.
 To date, this aspect of MUD has been difficult to describe.
 This document does not consider internal communications to be in scope.
