@@ -193,7 +193,7 @@ The latter are called anti-patterns, as per {{antipatterns}}.
 
 This section describes a number of things which IoT manufacturers have been observed to do in the field, each of which presents difficulties for MUD enforcement points.
 
-## Use of IP Address Literals in-protocol {#inprotocol}
+## Use of IP Address Literals {#inprotocol}
 
 A common pattern for a number of devices is to look for firmware updates in a two-step process.
 An initial query is made (often over HTTPS, sometimes with a POST, but the method is immaterial) to a vendor system that knows whether an update is required.
@@ -204,30 +204,44 @@ In simpler cases, an HTTPS endpoint is queried which provides the name and URL o
 The authoritative upgrade server then responds with a URL of a firmware blob that the device should download and install.
 Best practice is that firmware is either signed internally ({{-SUITARCH}}) so that it can be verified, or a hash of the blob is provided.
 
-An authoritative server might be tempted to provide an IP address literal inside the protocol: there are two arguments (anti-patterns) for doing this.
-
-The first is that it eliminates problems with firmware updates that might be caused by lack of DNS, or incompatibilities with DNS.
+An authoritative server might be tempted to provide an IP address literal inside the protocol.
+An argument for doing this is that it eliminates problems with firmware updates that might be caused by lack of DNS, or incompatibilities with DNS.
 For instance a bug that causes interoperability issues with some recursive servers would become unpatchable for devices that were forced to use that recursive resolver type.
 
-The second reason to avoid an IP address literal in the URL is when an inhouse content-distribution system is involved that involves on-demand instances being added (or removed) from a cloud computing architecture.
+But, there are several problems with the use of IP address literals for the location of the firmware.
 
-But, there are more problems with use of IP address literals for the location of the firmware.
+The first is that the update service server must decide whether to provide an
+IPv4 or an IPv6 literal, assuming that only one URL can be provided.
+A DNS name can contain both kinds of addresses, and can also contain many
+different IP addresses of each kind.
+An update server might believe that if the connection was on IPv4, that an
+IPv4 literate would be acceptable, but due to NAT64 {{?RFC6146}} a device with only IPv6
+connectivity will often be able to reach an IPv4 firmware update server by
+name (through DNS64 {{?RFC6147}}), but not be able to reach arbitrary IPv4 address.
 
-The first is that the update service server must decide whether to provide an IPv4 or an IPv6 literal.
-A DNS name can contain both kinds of addresses, and can also contain many different IP addresses of each kind.
-
-The second problem is that it forces the MUD file definition to contain the exact same IP address literals.
-It must also contain an ACL for each address literal.
-DNS provides a useful indirection method that naturally aggregates the addresses.
+A MUD file definition for this access would need to resolve to the set of IP
+addresses that might be returned by the update server.
+This can be done with IP address literals in the MUD file, but this may
+require continuing updates to the MUD file if the addresses change frequently.
+A DNS name in the MUD could resolve to the set of all possible IPv4 and IPv6
+addresses that would be used, with DNS providing a level of indirection that
+obviates the need to update the MUD file itself.
 
 A third problem involves the use of HTTPS.
-IP address literals do not provide enough context for TLS ServerNameIndicator to be useful {{?RFC6066}}.
-This limits the firmware repository to be a single tenant on that IP address, and for IPv4 (at least), this is no longer a sustainable use of IP addresses.
+It is often more difficult to get TLS certificates for an IP address, and so
+it is less likely that the firmware download will be protected by TLS.
+An IP address literal in the TLS ServerNameIndicator {{?RFC6066}}, might not
+provide enough context for a web server to distinguish which of potentially
+many tenants, the client wishes to reach.
+This then drives the use of an IP address per-tenant, and for IPv4 (at
+least), this is no longer a sustainable use of IP addresses.
 
 Finally, it is common in some Content Distribution Networks (CDNs) to use multiple layers of DNS CNAMEs in order to isolate the content-owner's naming system from changes in how the distribution network is organized.
 
 A non-deterministic name or address that is returned within the update protocol, the MUD controller is unable to know what the name is.
 It is therefore unable to make sure that the communication to retrieve the new firmware is permitted by the MUD enforcement point.
+The use of a deterministic name in the update protocol allows for easier
+definition of the MUD file.
 
 ## Use of Non-deterministic DNS Names in-protocol
 
