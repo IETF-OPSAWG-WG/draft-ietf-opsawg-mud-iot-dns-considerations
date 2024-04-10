@@ -238,10 +238,14 @@ least), this is no longer a sustainable use of IP addresses.
 
 Finally, it is common in some Content Distribution Networks (CDNs) to use multiple layers of DNS CNAMEs in order to isolate the content-owner's naming system from changes in how the distribution network is organized.
 
-A non-deterministic name or address that is returned within the update protocol, the MUD controller is unable to know what the name is.
-It is therefore unable to make sure that the communication to retrieve the new firmware is permitted by the MUD enforcement point.
-The use of a deterministic name in the update protocol allows for easier
-definition of the MUD file.
+When a name or address is returned within an update protocol for which a MUD
+rule cannot be written, then the MUD controller is unable to authorize the
+connection.
+In order for the connection to be authorized, the set of names returned
+within the update protocol needs to be known ahead of time, and must be from
+a finite set of possibilities.
+Such a set of names or addresses can be placed into the MUD file as an ACL in
+advance, and the connections authorized.
 
 ## Use of Non-deterministic DNS Names in-protocol
 
