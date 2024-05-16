@@ -1,7 +1,7 @@
 ---
 title: Operational Considerations for Use of DNS in IoT Devices
 abbrev: mud-iot-dns
-docname: draft-ietf-opsawg-mud-iot-dns-considerations-13
+docname: draft-ietf-opsawg-mud-iot-dns-considerations-14
 
 ipr: trust200902
 area: Operations
@@ -375,7 +375,8 @@ Use of public resolvers instead of the provided DNS resolver, whether Do53, DoQ,
 Should the network provide such a resolver for use, then use it.
 
 Some manufacturers would like to have a fallback to using a public resolver to mitigate against local misconfiguration.
-There are a number of reasons to avoid this, detailed in {{tailorednames}}. The public resolver might not return the same tailored names that the MUD controller would get.
+There are a number of reasons to avoid this, detailed in {{tailorednames}}.
+The public resolver might not return the same tailored names that the MUD controller would get.
 
 It is recommended that use of non-local resolvers is only done when the locally provided resolvers provide no answers to any queries at all, and do so repeatedly.
 The use of the operator provided resolvers SHOULD be retried on a periodic basis, and once they answer, there SHOULD be no further attempts to contact public resolvers.
@@ -415,6 +416,7 @@ The use of DoT and DoH eliminates the threat from passive eavesdropping, but sti
 There are additional methods to help preserve privacy, such as described by {{?RFC9230}}.
 
 The use of unencrypted (Do53) requests to a local DNS server exposes the list to any internal passive eavesdroppers, and for some situations that may be significant, particularly if unencrypted Wi-Fi is used.
+
 Use of Encrypted DNS connection to a local DNS recursive resolver is the preferred choice.
 
 IoT devices that reach out to the manufacturer at regular intervals to check for firmware updates are informing passive eavesdroppers of the existence of a specific manufacturer's device being present at the origin location.
