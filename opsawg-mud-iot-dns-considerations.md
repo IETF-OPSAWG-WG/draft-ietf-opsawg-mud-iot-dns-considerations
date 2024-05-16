@@ -85,7 +85,7 @@ Access Control Lists (ACLs) can be defined in an RFC 8520 Manufacturer Usage Des
 Use of a DNS name rather than an IP address in an ACL has many advantages: not only does the layer of indirection permit the mapping of a name to IP address(es) to be changed over time, it also generalizes automatically to IPv4 and IPv6 addresses, as well as permitting a variety of load balancing strategies, including multi-CDN deployments wherein load balancing can account for geography and load.
 
 However, the use of DNS names has implications on how ACL are executed at the MUD policy enforcement point (typically, a firewall).
-Conceretely, the firewall has access only to the Layer 3 headers of the packet.
+Concretely, the firewall has access only to the Layer 3 headers of the packet.
 This includes the source and destination IP address, and if not encrypted by IPsec, the destination UDP or TCP port number present in the transport header.
 The DNS name is not present!
 
@@ -343,7 +343,7 @@ Ultimately, the decision is based upon some topological notion of closeness.
 This is often used to provide tailored responses to clients, providing them
 with a geographically advantageous answer.
 
-When the MUD controller makes it's DNS query, it is critical that it receive
+When the MUD controller makes its DNS query, it is critical that it receive
 an answer which is based upon the same topological decision as when the IoT
 device makes its query.
 
@@ -431,7 +431,7 @@ Other update mechanisms should be investigated, including use of DNSSEC signed T
 This would permit DoT or DoH to convey the update notification in a private fashion.
 This is particularly powerful if a local recursive DoT server is used, which then communicates using DoT over the Internet.
 
-The more complex case of section {{inprotocol}} postulates that the version number needs to be provided to an intelligent agent that can decide the correct route to do upgrades.
+The more complex case of {{inprotocol}} postulates that the version number needs to be provided to an intelligent agent that can decide the correct route to do upgrades.
 {{-SUITARCH}} provides a wide variety of ways to accomplish the same thing without having to divulge the current version number.
 
 The use of a publicly specified firmware update protocol would also enhance privacy of IoT devices.
