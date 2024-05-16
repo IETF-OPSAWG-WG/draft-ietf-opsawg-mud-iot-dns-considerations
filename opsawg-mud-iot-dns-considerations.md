@@ -367,22 +367,21 @@ tailored responses as part of the DNS names in the MUD file.
 
 ## Prefer DNS Servers Learnt From DHCP/Router Advertisements
 
-IoT Devices SHOULD prefer doing DNS with the DHCP provided DNS servers, or DNS servers learnt from Router Advertisements {{?RFC8106}}.
+The best practice is for IoT Devices to do DNS with the DHCP provided DNS servers, or DNS servers learnt from Router Advertisements {{?RFC8106}}.
 
 The ADD WG has written {{?RFC9463}} and {{?RFC9462}} to provide information to end devices on how to find locally provisioned secure/private DNS servers.
 
-Use of public resolvers instead of the provided DNS resolver, whether Do53, DoQ, DoT or DoH is discouraged.
-Should the network provide such a resolver for use, then use it.
+Use of public resolvers instead of the locally provided DNS resolver, whether Do53, DoQ, DoT or  DoH is discouraged.
 
 Some manufacturers would like to have a fallback to using a public resolver to mitigate against local misconfiguration.
 There are a number of reasons to avoid this, detailed in {{tailorednames}}.
 The public resolver might not return the same tailored names that the MUD controller would get.
 
 It is recommended that use of non-local resolvers is only done when the locally provided resolvers provide no answers to any queries at all, and do so repeatedly.
-The use of the operator provided resolvers SHOULD be retried on a periodic basis, and once they answer, there SHOULD be no further attempts to contact public resolvers.
+The status of the operator provided resolvers needs to be re-evaluated on a periodic basis.
 
-Finally, the list of public resolvers that might be contacted MUST be listed in the MUD file as destinations that are to be permitted!
-This should include the port numbers (i.e., 53, 853 for DoT, 443 for DoH) that will be used as well.
+Finally, if a device will ever attempt to use a non-local resolvers, then the address of that resolver needs to be listed in the MUD file as destinations that are to be permitted.
+This needs to include the port numbers (i.e., 53, 853 for DoT, 443 for DoH) that will be used as well.
 
 # Interactions with mDNS and DNSSD
 
