@@ -115,6 +115,8 @@ This document makes use of terms defined in {{RFC8520}} and {{I-D.ietf-dnsop-rfc
 
 The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
 
+CDN refers to Content Distribution Networks, such as described by {{?RFC6707, Section 1.1}}.
+
 # A model for MUD controller mapping of DNS names to addresses {#mapping}
 
 This section details a strategy that a MUD controller could take.
@@ -255,26 +257,23 @@ References within that control protocol are made to additional content at other 
 The values of those URLs do not fit any easily described pattern and may point at arbitrary DNS names.
 
 Those DNS names are often within some third-party CDN system, or may be arbitrary DNS names in a cloud-provider storage system (e.g., {{AmazonS3}}, or {{Akamai}}).
-Some of the name components may be specified by the provider.
+Some of the name components may be specified by the third party CDN provider.
 
-Such DNS names may be unpredictably chosen by the content provider, and not the content owner, and so impossible to insert into a MUD file.
+Such DNS names may be unpredictably chosen by the CDN, and not the device manufacturer, and so impossible to insert into a MUD file.
+Implementation of the CDN system may also involve HTTP redirections to downstream CDN systems.
 
-Even if the content provider chosen DNS names are deterministic they may change at a rate much faster
-than MUD files can be updated.
+Even if the CDN provider's chosen DNS names are deterministic they may change at a rate much faster than MUD files can be updated.
 
-This in particular may apply to the location where firmware updates may be retrieved.
+This situation applies to firmware updates, but also applies to many other kinds of content: video content, in-game content, etc.
 
-A solution is to use a deterministic DNS name, within the control of the firmware vendor.
-This may be a problem if the content distribution network needs to reorganize which IP address is responsible for which content, or if there is a desire to provide content in geographically relevant ways.
-
-The firmware vendor is therefore likely to be asked to point a CNAME to the CDN, to a name that might look like "g7.a.example", with the expectation that the CDN vendors DNS will do all the appropriate work to geolocate the transfer.
+A solution may be to use a deterministic DNS name, within the control of the device manufacturer.
+The device manufacturer is asked to point a CNAME to the CDN, to a name that might look like "g7.a.example", with the expectation that the CDN vendors DNS will do all the appropriate work to geolocate the transfer.
 This can be fine for a MUD file, as the MUD controller, if located in the same geography as the IoT device, can follow the CNAME, and can collect the set of resulting IP addresses, along with the TTL for each.
 The MUD controller can then take charge of refreshing that mapping at intervals driven by the TTL.
 
-In some cases, a complete set of geographically distributed servers is known
-ahead of time, and the firmware vendor can list all those addresses in the DNS for the the name that it lists in the MUD file.
-As long as the active set of addresses used by the CDN is a strict subset of that list, then the geolocated name can be used for the firmware download itself.
-This use of two addresses is ripe for confusion, however.
+In some cases, a complete set of geographically distributed servers may be known
+ahead of time (or that it changes very slowly), and the device manufacturer can list all those IP addresses in the DNS for the the name that it lists in the MUD file.
+As long as the active set of addresses used by the CDN is a strict subset of that list, then the geolocated name can be used for the content download itself.
 
 ## Use of a Too Generic DNS Name
 
