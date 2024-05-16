@@ -372,7 +372,7 @@ IoT Devices SHOULD prefer doing DNS with the DHCP provided DNS servers, or DNS s
 The ADD WG has written {{?RFC9463}} and {{?RFC9462}} to provide information to end devices on how to find locally provisioned secure/private DNS servers.
 
 Use of public resolvers instead of the provided DNS resolver, whether Do53, DoQ, DoT or DoH is discouraged.
-Should the network provide such a resolver for use, then there is no reason not to use it, as the network operator has clearly thought about this.
+Should the network provide such a resolver for use, then use it.
 
 Some manufacturers would like to have a fallback to using a public resolver to mitigate against local misconfiguration.
 There are a number of reasons to avoid this, detailed in {{tailorednames}}. The public resolver might not return the same tailored names that the MUD controller would get.
