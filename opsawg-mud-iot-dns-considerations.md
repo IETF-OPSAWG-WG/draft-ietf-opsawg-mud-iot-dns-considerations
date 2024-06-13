@@ -434,20 +434,6 @@ This is particularly powerful if a local recursive DoT server is used, which the
 The more complex case of {{inprotocol}} postulates that the version number needs to be provided to an intelligent agent that can decide the correct route to do upgrades.
 {{-SUITARCH}} provides a wide variety of ways to accomplish the same thing without having to divulge the current version number.
 
-The use of a publicly specified firmware update protocol would also enhance privacy of IoT devices.
-In such a system, the IoT device would never contact the manufacturer for version information or for firmware itself.
-Instead, details of how to query and where to get the firmware would be provided as a MUD extension, and an Enterprise-wide mechanism would retrieve firmware, and then distribute it internally.
-Aside from the bandwidth savings of downloading the firmware only once, this also makes the number of devices active confidential,  and provides some evidence about which devices have been upgraded and which ones might still be vulnerable.
-(The unpatched devices might be lurking, powered off, lost in a closet)
-
-While a vendor proprietary scheme to distribute firmware updates would
-satisfy some of these criteria, operators/Enterprises are less likely to
-install one of these for every single device class.
-Home (residential) users are unlikely to install any system that did not
-provide service to all their devices (and came pre-installed on a home router
-or other home network management system, such as a home Network Attached
-Storage device), so only a system that was non-proprietary is likely to be present.
-
 # Security Considerations {#sec-security}
 
 This document deals with conflicting Security requirements:
