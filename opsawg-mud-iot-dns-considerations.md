@@ -200,7 +200,7 @@ This section describes a number of things which IoT manufacturers have been obse
 A common pattern for a number of devices is to look for firmware updates in a two-step process.
 An initial query is made (often over HTTPS, sometimes with a POST, but the method is immaterial) to a vendor system that knows whether an update is required.
 
-The current firmware model of the device is sometimes provided and then the authoritative server provides a determination if a new version is required and, if so, what version.
+The current firmware model of the device is sometimes provided and then the vendor's authoritative server provides a determination if a new version is required and, if so, what version.
 In simpler cases, an HTTPS endpoint is queried which provides the name and URL of the most recent firmware.
 
 The authoritative upgrade server then responds with a URL of a firmware blob that the device should download and install.
@@ -299,6 +299,10 @@ For some users and classes of devices, revealing the DNS queries to those outsid
 For other users the use of an insecure local resolver may constitute a privacy concern.
 
 As described above in {{mapping}} the MUD controller needs to have access to the same resolver(s) as the IoT device.
+If the IoT device does not use the DNS servers provided to it via DHCP or Router Advertisements, then the MUD controller will need to be told which servers will in fact be used.
+As yet, there is no protocol to do this, but future work could provide this as an extension to MUD.
+
+Until such time as such a protocol exists, the best practice is for the IoT device to always use the DNS servers provided by DHCP or Router Advertisements.
 
 # Recommendations To IoT Device Manufacturers on MUD and DNS Usage {#sec-reco}
 
