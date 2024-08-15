@@ -53,7 +53,12 @@ informative:
     title: "AntiPattern"
     date: 2021-07-12
 
-  awss3virtualhosting:
+  boywhocriedwolf:
+    target: "https://en.wikipedia.org/wiki/The_Boy_Who_Cried_Wolf"
+    title: "Boy who Cried Wolf"
+    date: 2024-08-15
+
+awss3virtualhosting:
     title: "Down to the Wire: AWS Delays 'Path-Style' S3 Deprecation at Last Minute"
     target: "https://techmonitor.ai/techonology/cloud/aws-s3-path-deprecation"
     date: 2021-07-12
@@ -449,6 +454,20 @@ This document deals with conflicting Security requirements:
 
 This document takes the view that the two requirements do not need to be in conflict, but resolving the conflict requires careful planning on how the DNS can be safely and effectively
 used by MUD controllers and IoT devices.
+
+When an IoT device with an inaccurate MUD file is deployed into a network that uses MUD, there is a significant possibility that the device will cause a spurious security exception to be raised.
+There is significant evidence that such spurious exceptions cause significant overhead to personnel.
+In particular, repeated spurious exceptions are likely to cause the entire exception process to be turned off.  When MUD alerts are turned off, then even legitimate exceptions are ignored.
+This is very much a Boy Who Calls Wolf {{boywhocriedwolf}} situation.
+
+In order to avoid this situation, and for MUD alerts to be given appropriate attention, it is key that IoT device manufacturers create accurate MUD files.
+This may require some significant thought, even rework of key systems, so that all network access requires by the IoT device can be described by a MUD file.
+This level of informed cooperation within the IoT device vendor and with MUD controller manufacturers is key to getting significant return on investment from MUD.
+
+Manufacturers are encouraged to write MUD files that are good enough, rather than perfect.
+If in doubt, they should write MUD files that are somewhat more permissive if it results in no spurious alerts.
+
+
 
 --- back
 
