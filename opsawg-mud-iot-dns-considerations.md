@@ -251,7 +251,7 @@ a finite set of possibilities.
 Such a set of names or addresses can be placed into the MUD file as an ACL in
 advance, and the connections authorized.
 
-## Use of Non-deterministic DNS Names in-protocol
+## Use of Non-deterministic DNS Names in protocols
 
 A second pattern is for a control protocol to connect to a known HTTP endpoint.
 This is easily described in MUD.
@@ -457,7 +457,7 @@ In particular, repeated spurious exceptions are likely to cause the entire excep
 This is very much a Boy Who Calls Wolf {{boywhocriedwolf}} situation.
 
 In order to avoid this situation, and for MUD alerts to be given appropriate attention, it is key that IoT device manufacturers create accurate MUD files.
-This may require some significant thought, even rework of key systems, so that all network access requires by the IoT device can be described by a MUD file.
+This may require some significant thought, even rework of key systems, so that all network access required by the IoT device can be described by a MUD file.
 This level of informed cooperation within the IoT device vendor and with MUD controller manufacturers is key to getting significant return on investment from MUD.
 
 Manufacturers are encouraged to write MUD files that are good enough, rather than perfect.
