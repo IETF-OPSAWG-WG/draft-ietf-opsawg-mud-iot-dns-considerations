@@ -113,8 +113,6 @@ How these concerns apply to IoT devices located within a residence or enterprise
 
 # Terminology          {#Terminology}
 
-{::boilerplate bcp14info}
-
 This document makes use of terms defined in {{RFC8520}} and {{I-D.ietf-dnsop-rfc8499bis}}.
 
 The term "anti-pattern" comes from agile software design literature, as per {{antipatterns}}.
@@ -159,12 +157,11 @@ Aside from the list of records being incomplete, the list may have changed betwe
 If the IoT device did not use the same recursive servers as the MUD controller, then
 tailored DNS replies and/or truncated round-robin results could return a different, and non-overlapping set of addresses.
 
-In order to compensate for this, the MUD controller SHOULD regularly perform DNS lookups in order to never have stale data.
+In order to compensate for this, the MUD controller performs regular DNS lookups in order to never have stale data.
 These lookups must be rate limited to avoid excessive load on the DNS servers,
 and it may be necessary to avoid local recursive resolvers.
-The MUD controller SHOULD incorporate its own recursive caching DNS server.
-Properly designed recursive servers should cache data for at least some
-number of minutes, up to some number of days (respecting the TTL), while the underlying DNS data can change at a higher frequency, providing different answers to different queries!
+A MUD controller that incorporates its own recursive caching DNS client will be able to observe the TTL on the entries, and expire them appropriately.
+This cached will last for at least some number of minutes, up to some number of days (respecting the TTL), while the underlying DNS data can change at a higher frequency, providing different answers to different queries!
 
 A MUD controller that is aware of which recursive DNS server the IoT device will use can instead query that server on a periodic basis.
 Doing so provides three advantages:
@@ -482,7 +479,7 @@ Attempts to map IP addresses to DNS names in real time often fails for a number 
 
 4. Even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
 
-This is not a successful strategy, it MUST NOT be used for the reasons explained below.
+This is not a successful strategy: for reasons explained below.
 
 ## Too Slow
 
