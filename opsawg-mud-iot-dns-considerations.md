@@ -58,7 +58,7 @@ informative:
     title: "Boy who Cried Wolf"
     date: 2024-08-15
 
-awss3virtualhosting:
+  awss3virtualhosting:
     title: "Down to the Wire: AWS Delays 'Path-Style' S3 Deprecation at Last Minute"
     target: "https://techmonitor.ai/techonology/cloud/aws-s3-path-deprecation"
     date: 2021-07-12
