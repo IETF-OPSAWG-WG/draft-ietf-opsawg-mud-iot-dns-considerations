@@ -9,12 +9,11 @@ wg: OPSAWG Working Group
 kw: Internet-Draft
 cat: bcp
 
-stand-alone: true
-
 pi:    # can use array (if all yes) or hash here
   toc: yes
   sortrefs:   # defaults to yes
   symrefs: yes
+  stand-alone: true
 
 author:
 
